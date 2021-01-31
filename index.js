@@ -20,7 +20,9 @@ scrollableComponentTemplate.innerHTML = `
       --scrollbar-padding: 2px;
       --scrollbar-fill-color: transparent;
       --scrollbar-fill-color-hover: transparent;
-      --scrollbar-border: 0 none;
+      --scrollbar-border-width: 0
+      --scrollbar-border-style: none;
+      --scrollbar-border-color: #999;
       --scrollbar-border-radius: 0;
       --scrollbar-box-shadow: none;
       --vertical-scrollbar-background: none;
@@ -30,7 +32,9 @@ scrollableComponentTemplate.innerHTML = `
 
       --scrollbar-track-fill-color: transparent;
       --scrollbar-track-fill-color-hover: transparent;
-      --scrollbar-track-border: 0 none;
+      --scrollbar-track-border-width: 0
+      --scrollbar-track-border-style: none;
+      --scrollbar-track-border-color: #999;
       --scrollbar-track-border-radius: 0;
       --scrollbar-track-box-shadow: none;
       --vertical-scrollbar-track-background: none;
@@ -40,7 +44,9 @@ scrollableComponentTemplate.innerHTML = `
 
       --scrollbar-thumb-fill-color: #ccc;
       --scrollbar-thumb-fill-color-hover: #aaa;
-      --scrollbar-thumb-border: 0 none;
+      --scrollbar-thumb-border-width: 0
+      --scrollbar-thumb-border-style: none;
+      --scrollbar-thumb-border-color: #999;
       --scrollbar-thumb-border-radius: var(--scrollbar-width);
       --scrollbar-thumb-box-shadow: none;
       --vertical-scrollbar-thumb-background: none;
@@ -94,7 +100,9 @@ scrollableComponentTemplate.innerHTML = `
       user-select: none;
       position: absolute;
       padding: var(--scrollbar-padding);
-      border: var(--scrollbar-border);
+      border-width: var(--scrollbar-border-width);
+      border-style: var(--scrollbar-border-style);
+      border-color: var(--scrollbar-border-color);
       border-radius: var(--scrollbar-border-radius);
       box-shadow: var(--scrollbar-box-shadow);
       opacity: 0;
@@ -152,7 +160,9 @@ scrollableComponentTemplate.innerHTML = `
     .scrollbar .scrollbar-track {
       height: 100%;
       width: 100%;
-      border: var(--scrollbar-track-border);
+      border-width: var(--scrollbar-track-border-width);
+      border-style: var(--scrollbar-track-border-style);
+      border-color: var(--scrollbar-track-border-color);
       border-radius: var(--scrollbar-track-border-radius);
       box-shadow: var(--scrollbar-track-box-shadow);
       transition: background-color var(--fill-color-transition-duration) ease-out;
@@ -178,7 +188,9 @@ scrollableComponentTemplate.innerHTML = `
     .scrollbar .scrollbar-thumb {
       height: 100%;
       width: 100%;
-      border: var(--scrollbar-thumb-border);
+      border-width: var(--scrollbar-thumb-border-width);
+      border-style: var(--scrollbar-thumb-border-style);
+      border-color: var(--scrollbar-thumb-border-color);
       border-radius: var(--scrollbar-thumb-border-radius);
       transform: translate3d(0, 0, 0);
       box-shadow: var(--scrollbar-thumb-box-shadow);
