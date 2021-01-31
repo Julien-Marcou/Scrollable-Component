@@ -106,7 +106,8 @@ scrollableComponentTemplate.innerHTML = `
       right: 0;
       top: 0;
       bottom: 0;
-      background: var(--scrollbar-fill-color) var(--vertical-scrollbar-background);
+      background: var(--vertical-scrollbar-background);
+      background-color: var(--scrollbar-fill-color);
       background-size: var(--vertical-scrollbar-background-size);
     }
     .vertical-scrollbar.left-position {
@@ -119,7 +120,8 @@ scrollableComponentTemplate.innerHTML = `
       left: 0;
       right: 0;
       bottom: 0;
-      background: var(--scrollbar-fill-color) var(--horizontal-scrollbar-background);
+      background: var(--horizontal-scrollbar-background);
+      background-color: var(--scrollbar-fill-color);
       background-size: var(--horizontal-scrollbar-background-size);
     }
     .horizontal-scrollbar.top-position {
@@ -158,11 +160,13 @@ scrollableComponentTemplate.innerHTML = `
 
     /* Scrollbar's strack */
     .vertical-scrollbar .scrollbar-track {
-      background: var(--scrollbar-track-fill-color) var(--vertical-scrollbar-track-background);
+      background: var(--vertical-scrollbar-track-background);
+      background-color: var(--scrollbar-track-fill-color);
       background-size: var(--vertical-scrollbar-track-background-size);
     }
     .horizontal-scrollbar .scrollbar-track {
-      background: var(--scrollbar-track-fill-color) var(--horizontal-scrollbar-track-background);
+      background: var(--horizontal-scrollbar-track-background);
+      background-color: var(--scrollbar-track-fill-color);
       background-size: var(--horizontal-scrollbar-track-background-size);
     }
     .scrollbar-track:hover,
@@ -181,11 +185,13 @@ scrollableComponentTemplate.innerHTML = `
       transition: background-color var(--fill-color-transition-duration) ease-out;
     }
     .vertical-scrollbar .scrollbar-thumb {
-      background: var(--scrollbar-thumb-fill-color) var(--vertical-scrollbar-thumb-background);
+      background: var(--vertical-scrollbar-thumb-background);
+      background-color: var(--scrollbar-thumb-fill-color);
       background-size: var(--vertical-scrollbar-thumb-background-size);
     }
     .horizontal-scrollbar .scrollbar-thumb {
-      background: var(--scrollbar-thumb-fill-color) var(--horizontal-scrollbar-thumb-background);
+      background: var(--horizontal-scrollbar-thumb-background);
+      background-color: var(--scrollbar-thumb-fill-color);
       background-size: var(--horizontal-scrollbar-thumb-background-size);
     }
     .scrollbar .scrollbar-thumb:hover,
