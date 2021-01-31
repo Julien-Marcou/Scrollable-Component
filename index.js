@@ -109,6 +109,10 @@ scrollableComponentTemplate.innerHTML = `
       background: var(--scrollbar-fill-color) var(--vertical-scrollbar-background);
       background-size: var(--vertical-scrollbar-background-size);
     }
+    .vertical-scrollbar.left-position {
+      left: 0;
+      right: auto;
+    }
     .horizontal-scrollbar {
       z-index: 10;
       height: var(--scrollbar-width);
@@ -117,6 +121,10 @@ scrollableComponentTemplate.innerHTML = `
       bottom: 0;
       background: var(--scrollbar-fill-color) var(--horizontal-scrollbar-background);
       background-size: var(--horizontal-scrollbar-background-size);
+    }
+    .horizontal-scrollbar.top-position {
+      top: 0;
+      bottom: auto;
     }
     .scrollbar:hover,
     .scrollbar.scrolling-with-thumb,
@@ -373,10 +381,26 @@ export class ScrollableComponentElement extends HTMLElement {
         this.viewport.classList.remove('scrollbar-visible');
       }
     }
+    else if (attributeName === 'vertical-scrollbar-position') {
+      if (newValue === 'left') {
+        this.elements.vertical.scrollbar.classList.add('left-position');
+      }
+      else {
+        this.elements.vertical.scrollbar.classList.remove('left-position');
+      }
+    }
+    else if (attributeName === 'horizontal-scrollbar-position') {
+      if (newValue === 'top') {
+        this.elements.horizontal.scrollbar.classList.add('top-position');
+      }
+      else {
+        this.elements.horizontal.scrollbar.classList.remove('top-position');
+      }
+    }
   }
 
   static get observedAttributes() {
-    return ['scrollbar-visibility'];
+    return ['scrollbar-visibility', 'vertical-scrollbar-position', 'horizontal-scrollbar-position'];
   }
 
   updateCache(orientation) {

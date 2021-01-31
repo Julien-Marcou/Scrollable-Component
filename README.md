@@ -100,6 +100,22 @@ You can force the scrollbar to always be visible by setting the `scrollbar-visib
 </scrollable-component>
 ```
 
+You can put the vertical scrollbar on the left of the viewport by setting the `vertical-scrollbar-position` attribute to `left`
+
+```html
+<scrollable-component vertical-scrollbar-position="left">
+    <!-- Your content -->
+</scrollable-component>
+```
+
+You can put the horizontal scrollbar on the top of the viewport by setting the `horizontal-scrollbar-position` attribute to `top`
+
+```html
+<scrollable-component horizontal-scrollbar-position="top">
+    <!-- Your content -->
+</scrollable-component>
+```
+
 You can change the transitions, the scrolling behaviors and the look of the scrollbars using CSS properties
 
 ```css
