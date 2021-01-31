@@ -111,6 +111,8 @@ scrollable-component {
     --fill-color-transition-duration: 150ms;
 
     /* Scrolling behaviors */
+    --viewport-overflow-x: auto;
+    --viewport-overflow-y: auto;
     --viewport-scroll-snap-type: none;
     --viewport-scroll-behavior: auto;
     --viewport-overscroll-behavior: auto;

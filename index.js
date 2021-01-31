@@ -10,6 +10,8 @@ scrollableComponentTemplate.innerHTML = `
       --fade-out-transition-delay: 300ms;
       --fill-color-transition-duration: 150ms;
 
+      --viewport-overflow-x: auto;
+      --viewport-overflow-y: auto;
       --viewport-scroll-snap-type: none;
       --viewport-scroll-behavior: auto;
       --viewport-overscroll-behavior: auto;
@@ -57,8 +59,8 @@ scrollableComponentTemplate.innerHTML = `
     /* Viewport */
     .viewport {
       z-index: 0;
-      display: grid;
-      overflow: auto;
+      overflow-x: var(--viewport-overflow-x);
+      overflow-y: var(--viewport-overflow-y);
       scrollbar-width: none;
       outline: none;
       scroll-behavior: var(--viewport-scroll-behavior);
