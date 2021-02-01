@@ -326,6 +326,7 @@ export class ScrollableComponentElement extends HTMLElement {
 
       // Scroll to mouse position in scrollbar's track
       this.elements[orientation].scrollbarTrack.addEventListener('mousedown', (event) => {
+        this.boundingBoxes[orientation].scrollbarTrack = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
         this.viewport.scrollTo({
           [spacings[orientation]]: (event[clients[orientation]] - this.boundingBoxes[orientation].scrollbarTrack[spacings[orientation]] - this.sizes[orientation].scrollbarThumb / 2) * this.ratios[orientation],
           behavior: 'smooth',
