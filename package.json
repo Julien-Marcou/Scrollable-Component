@@ -19,5 +19,5 @@
   ],
   "main": "index.js",
   "type": "module",
-  "license": "UNLICENSED"
+  "license": "MIT"
 }
