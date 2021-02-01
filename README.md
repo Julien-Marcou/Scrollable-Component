@@ -116,7 +116,23 @@ You can put the horizontal scrollbar on the top of the viewport by setting the `
 </scrollable-component>
 ```
 
-You can change the transitions, the scrolling behaviors and the look of the scrollbars using CSS properties
+By default, the viewport's content will overflow in both directions, if you have some content which you want to be hidden instead of displaying a scrollbar to access it, you can override the viewport overflow behaviors using CSS properties
+
+```css
+/* No horizontal scrolling */
+scrollable-component {
+    --viewport-overflow-x: hidden;
+}
+
+/* No vertical scrolling  */
+scrollable-component {
+    --viewport-overflow-y: hidden;
+}
+```
+
+You can also change the transitions, the scrolling behaviors and the look of the scrollbars using CSS properties
+
+Here is the list of all the default CSS properties you can override
 
 ```css
 scrollable-component {
@@ -126,9 +142,11 @@ scrollable-component {
     --fade-out-transition-delay: 300ms;
     --fill-color-transition-duration: 150ms;
 
-    /* Scrolling behaviors */
+    /* Overflow behaviors */
     --viewport-overflow-x: auto;
     --viewport-overflow-y: auto;
+
+    /* Scrolling behaviors */
     --viewport-scroll-snap-type: none;
     --viewport-scroll-behavior: auto;
     --viewport-overscroll-behavior: auto;
@@ -180,7 +198,7 @@ If you need to access the native viewport of the scrollable-component
 const scrollableComponent = document.querySelector('scrollable-component');
 
 scrollableComponent.viewport.addEventListener('scroll', (event) => {
-    // You code
+    // Your code
 });
 ```
 
@@ -191,6 +209,7 @@ Each scrollable-component is defining its own `--viewport-width` & `--viewport-h
     .carousel .carousel-track {
        display: grid;
        grid-auto-flow: column;
+       grid-gap: 30px;
     }
     .carousel .carousel-item {
        width: var(--viewport-width);
