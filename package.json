@@ -2,7 +2,7 @@
   "name": "scrollable-component",
   "version": "1.1.1",
   "description": "Native viewport with custom scrollbars 🖱️",
-  "homepage": "https://github.com/julien-marcou/scrollable-component#readme",
+  "homepage": "https://scrollable.julien-marcou.fr/",
   "repository": {
     "type": "git",
     "url": "https://github.com/julien-marcou/scrollable-component"
@@ -15,7 +15,9 @@
     "scrollable",
     "native",
     "viewport",
-    "component"
+    "component",
+    "custom-element",
+    "web-component"
   ],
   "main": "index.js",
   "type": "module",

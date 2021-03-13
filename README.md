@@ -1,11 +1,28 @@
 # Scrollable Component
 
+[![NPM Package](https://img.shields.io/npm/v/scrollable-component?label=release&color=%23cd2620&logo=npm)](https://www.npmjs.com/package/scrollable-component)
+[![GitHub Repository](https://img.shields.io/github/stars/Julien-Marcou/Scrollable-Component?color=%23f5f5f5&logo=github)](https://github.com/Julien-Marcou/Scrollabe-Component)
+
+![Downloads per Month](https://img.shields.io/npm/dm/scrollable-component)
+![Gzip Size](https://img.shields.io/bundlephobia/minzip/scrollable-component?label=gzip%20size)
+![No Dependency](https://img.shields.io/badge/dependencies-none-%23872a84)
+![MIT License](https://img.shields.io/npm/l/scrollable-component)
+
 Scrollable Component is a custom element (Web Component) made to handle native scrolling with a custom scrollbar, which means it is not trying to mimic or override the viewport's native scrolling, but instead, uses the viewport's native scrolling to mimic a custom scrollbar
+
+```html
+<scrollable-component></scrollable-component>
+```
 
 
 ## Demo
 
 You can check out some examples [here](https://scrollable.julien-marcou.fr/)
+
+And here is a screenshot of a native scrollbar (on Windows 10) vs the default scrollbar provided by Scrollable Component
+
+![Native vs Custom scrollbar](https://github.com/Julien-Marcou/scrollable-component-demo/raw/main/native-vs-custom.png)
+
 
 ## Installation
 
@@ -24,7 +41,7 @@ As it is a self-defined custom element, you must import it in your main entry fi
 import 'scrollable-component';
 ```
 
-In addition to the previous import, if you want to extend or use the typing of the ScrollableComponentElement, you can import it where you need it
+In addition to the previous import, if you want to extend or use the typing of the `ScrollableComponentElement`, you can import it where you need it
 
 ```javascript
 import { ScrollableComponentElement } from 'scrollable-component';
@@ -38,15 +55,16 @@ If you are not using Webpack, you can directly import it in your HTML using a `m
 <script type="module" src="path-to-scrollable-component-vendor/index.js"></script>
 ```
 
-Or, while we are waiting for the [Import Maps](https://wicg.github.io/import-maps/) specs to be available, so we can use "named" imports like you would do in TypeScript, and you want to import it in your JavaScript, you will need to use the path to the script
+Or import it in your JavaScript
 
 ```javascript
 import 'path-to-scrollable-component-vendor/index.js';
 ```
 
+
 ## Usage
 
-The ScrollableComponentElement will automatically add custom scrollbars if the content overflows the height/width of the viewport, so you just have to constrain its size (using height, max-height, or whatever you want)
+The `ScrollableComponentElement` will automatically add custom scrollbars if the content overflows the height/width of the viewport, so you just have to constrain its size (using height, max-height, or whatever you want)
 
 ```html
 <style>
@@ -68,14 +86,14 @@ The ScrollableComponentElement will automatically add custom scrollbars if the c
 Simple, performant, modern, it probably outpasses a lot of old custom scrollbar packages
 
 - It's built for raw performance by using modern features from browsers, which also allow for better customization & cleaner code
-- It does not override the viewport's native behaviors (Mousewheel scrolling, Swipe scrolling, Page Down/Up keys, Arrow keys, Middle Mouse Button's auto-scrolling, Scroll snapping, JavaScript API...)
+- It does not override the viewport's native behaviors (Mouse Wheel scrolling, Swipe scrolling, Page Down/Up keys, Arrow keys, Middle Mouse Button's auto-scrolling, Scroll snapping, JavaScript API...)
 - It uses the [Web Component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) specs, making it act like a black box from the outside (encapsulating HTML, CSS & JS) and leaving the DOM untouched, without extraneous `<div>`
 - It's simple to use (you just need to add the `<scrollable-component>` tag around the content you want the custom scrollbars on)
 - It's easy to customize (it uses CSS variables, like `--scrollbar-width: 16px;`)
 
 ### Quirks
 
-This package it not intended to replace all the scrollbars of your website, especially not the body's one. Tampering with native behaviors are always at risk, especially for the Web Accessibility
+This package is not intended to replace all the scrollbars of your website, especially not the body's one. Tampering with native behaviors is always at risk, especially for the Web Accessibility
 
 It's recommended to only use it sparingly, on small parts of your website (like modal boxes, chats, sidebars, dropdowns...) to enhance the user's experience through a cleaner UI
 
@@ -87,12 +105,14 @@ It's recommended to only use it sparingly, on small parts of your website (like 
 
 ## Browser compatibility
 
-Firefox & all Chromium-based browsers (Chrome, Edge, Safari, Opera, ...)
+Firefox, Chromium-based browsers (Chrome, Edge, Opera, ...) & WebKit-based browsers (Safari, ...)
 
 
 ## Customization
 
-You can force the scrollbar to always be visible by setting the `scrollbar-visibility` attribute to `always`
+![Native vs Custom scrollbar](https://raw.githubusercontent.com/Julien-Marcou/scrollable-component-demo/main/customization.png)
+
+By default, the scrollbar only appears when hovering the viewport, but you can force the scrollbar to always be visible by setting the `scrollbar-visibility` attribute to `always`
 
 ```html
 <scrollable-component scrollbar-visibility="always">
@@ -202,7 +222,7 @@ scrollableComponent.viewport.addEventListener('scroll', (event) => {
 });
 ```
 
-Each scrollable-component is defining its own `--viewport-width` & `--viewport-height` CSS properties, which may be usefull if you want to create something like a carousel, where child elements must take a certain amount of the viewport's size
+Each scrollable-component is defining its own `--viewport-width` & `--viewport-height` CSS properties, which may be useful if you want to create something like a carousel, where child elements must take a certain amount of the viewport's size
 
 ```html
 <style>
@@ -234,8 +254,8 @@ Each scrollable-component is defining its own `--viewport-width` & `--viewport-h
 
 Scrollable Component uses the [Web Component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) specs to create a custom element which handles all the work for you and which can even be extended
 
-The native scrollbar is hidden using the CSS `scrolbar-width: none;` rule which is a powerful new feature still in a Working Draft status, but already supported by Firefox and that should come to Chromium-based browsers soon enough, which are for the moment falling back to the CSS `::-webkit-scrollbar { width: 0; }` rule
+The native scrollbar is hidden using the CSS `scrollbar-width: none;` rule which is a powerful new feature still in a Working Draft status, but already supported by Firefox and that should come to Chromium-based browsers soon enough, which are for the moment falling back to the CSS `::-webkit-scrollbar { width: 0; }` rule
 
-The custom scrollbar's is redrawn when needed, to visually match where the native scrollbar would be placed
+The custom scrollbar is redrawn when needed, to visually match where the native scrollbar would be placed
 
-All scrolling behaviors on the viewport itself are the native ones, while scrolling behaviors directly using the custom scrollbar (like drag & dropping the scrollbar's thumb or clicking somewhere on the scrollbar's track) are handled with some JavaScript which then natively move the viewport's scroll position
+All scrolling behaviors on the viewport itself are the native ones, while scrolling behaviors directly using the custom scrollbar (e.g. drag & dropping the scrollbar's thumb or clicking somewhere on the scrollbar's track) are handled with some JavaScript which then natively move the viewport's scroll position
