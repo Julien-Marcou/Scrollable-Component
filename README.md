@@ -197,6 +197,7 @@ scrollable-component {
   /* Overflow behaviors */
   --viewport-overflow-x: auto;
   --viewport-overflow-y: auto;
+  --viewport-z-index: 0;
 
   /* Scrolling behaviors */
   --viewport-scroll-snap-type: none;
@@ -205,16 +206,21 @@ scrollable-component {
 
   /* Scrollbar look */
   --scrollbar-width: 16px;
-  --scrollbar-padding: 2px;
+  --scrollbar-padding: 0;
   --scrollbar-fill-color: transparent;
   --scrollbar-fill-color-hover: transparent;
   --scrollbar-border: 0 none;
   --scrollbar-border-radius: 0;
   --scrollbar-box-shadow: none;
+  --scrollbar-z-index-hover: 30;
   --vertical-scrollbar-background: none;
   --vertical-scrollbar-background-size: auto;
+  --vertical-scrollbar-padding: 2px;
+  --vertical-scrollbar-z-index: 20;
   --horizontal-scrollbar-background: none;
   --horizontal-scrollbar-background-size: auto;
+  --horizontal-scrollbar-padding: 2px;
+  --horizontal-scrollbar-z-index: 30;
 
   /* Scrollbar's track look */
   --scrollbar-track-fill-color: transparent;
