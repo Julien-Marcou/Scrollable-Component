@@ -509,11 +509,9 @@ export class ScrollableComponentElement extends HTMLElement {
         horizontal: 0,
       };
       if (this.sizes[orientation].scroll <= Math.ceil(this.sizes[orientation].viewport)) {
-        this.elements[orientation].scrollbar.classList.add('hidden');
         scrollbarThumbOffset[orientation] = 0;
       }
       else {
-        this.elements[orientation].scrollbar.classList.remove('hidden');
         scrollbarThumbOffset[orientation] = this.viewport[scrollSpacings[orientation]] / this.ratios[orientation];
       }
 
