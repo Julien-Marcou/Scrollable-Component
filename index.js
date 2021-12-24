@@ -326,12 +326,14 @@ export class ScrollableComponentElement extends HTMLElement {
 
       // Scroll to mouse position in scrollbar's track
       this.elements[orientation].scrollbarTrack.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         this.boundingBoxes[orientation].scrollbarTrack = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
         this.viewport.scrollTo({
           [spacings[orientation]]: (event[clients[orientation]] - this.boundingBoxes[orientation].scrollbarTrack[spacings[orientation]] - this.sizes[orientation].scrollbarThumb / 2) * this.ratios[orientation],
           behavior: 'smooth',
         });
-      }, { passive: true });
+      });
 
       // Gives back the focus to the viewport after clicking the scrollbar,
       // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
@@ -341,6 +343,7 @@ export class ScrollableComponentElement extends HTMLElement {
 
       // Start of scrolling with thumb
       this.elements[orientation].scrollbarThumb.addEventListener('mousedown', (event) => {
+        event.preventDefault();
         event.stopPropagation();
         document.body.style.setProperty('pointer-events', 'none');
         this.isScrollingWithThumb[orientation] = true;
@@ -350,7 +353,7 @@ export class ScrollableComponentElement extends HTMLElement {
           this.scrollingWithThumbOrigin[pages[orientation]] = event.touches ? event.touches[0][pages[orientation]] : event[pages[orientation]];
           this.scrollingWithThumbOrigin[scrollSpacings[orientation]] = this.viewport[scrollSpacings[orientation]];
         }
-      }, { passive: true });
+      });
     }
 
     // Scrolling with thumb
