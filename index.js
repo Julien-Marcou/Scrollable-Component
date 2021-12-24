@@ -338,7 +338,7 @@ export class ScrollableComponentElement extends HTMLElement {
       // Gives back the focus to the viewport after clicking the scrollbar,
       // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
       this.elements[orientation].scrollbar.addEventListener('click', () => {
-        this.viewport.focus();
+        this.viewport.focus({preventScroll: true});
       }, { passive: true });
 
       // Start of scrolling with thumb
@@ -377,7 +377,7 @@ export class ScrollableComponentElement extends HTMLElement {
           this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
           // Gives back the focus to the viewport after clicking the scrollbar's thumb,
           // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-          this.viewport.focus();
+          this.viewport.focus({preventScroll: true});
         }
       }
     }, { passive: true });
