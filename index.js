@@ -500,7 +500,7 @@ export class ScrollableComponentElement extends HTMLElement {
 
   updateScrollbarThumbSizes() {
     for (let orientation of orientations) {
-      if (this.sizes[orientation].scroll <= Math.ceil(this.sizes[orientation].viewport)) {
+      if (this.sizes[orientation].scroll <= Math.ceil(this.sizes[orientation].viewport) || this.restrictContentSize[orientation]) {
         this.elements[orientation].scrollbar.classList.add('hidden');
         this.sizes[orientation].scrollbarThumb = this.sizes[orientation].scrollbarTrack;
       }
@@ -519,7 +519,7 @@ export class ScrollableComponentElement extends HTMLElement {
         vertical: 0,
         horizontal: 0,
       };
-      if (this.sizes[orientation].scroll <= Math.ceil(this.sizes[orientation].viewport)) {
+      if (this.sizes[orientation].scroll <= Math.ceil(this.sizes[orientation].viewport) || this.restrictContentSize[orientation]) {
         scrollbarThumbOffset[orientation] = 0;
       }
       else {
