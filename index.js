@@ -233,6 +233,10 @@ const sizes = {
   vertical: 'height',
   horizontal: 'width',
 };
+const offsetSizes = {
+  vertical: 'offsetHeight',
+  horizontal: 'offsetWidth',
+};
 const spacings = {
   vertical: 'top',
   horizontal: 'left',
@@ -278,15 +282,6 @@ export class ScrollableComponentElement extends HTMLElement {
         scrollbarThumb: null,
       },
     };
-    this.boundingBoxes = {
-      viewport: null,
-      vertical: {
-        scrollbarTrack: null,
-      },
-      horizontal: {
-        scrollbarTrack: null,
-      },
-    };
     this.restrictContentSize = {
       vertical: false,
       horizontal: false,
@@ -304,6 +299,10 @@ export class ScrollableComponentElement extends HTMLElement {
       },
     };
     this.ratios = {
+      vertical: 1,
+      horizontal: 1,
+    };
+    this.scrollRatios = {
       vertical: 1,
       horizontal: 1,
     };
@@ -328,9 +327,17 @@ export class ScrollableComponentElement extends HTMLElement {
       this.elements[orientation].scrollbarTrack.addEventListener('mousedown', (event) => {
         event.preventDefault();
         event.stopPropagation();
-        this.boundingBoxes[orientation].scrollbarTrack = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
+
+        // Update scroll ratios each time we start scrolling, as the bounding client rect may have changed without triggering the resize observer
+        // e.g:
+        // - top/left after scrolling
+        // - width/height after CSS scale transform
+        const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
+        const scrollbarThumbBoundingBox = this.elements[orientation].scrollbarThumb.getBoundingClientRect();
+        this.scrollRatios[orientation] = this.sizes[orientation].scrollbarTrack / scrollbarTrackBoundingBox[sizes[orientation]];
+
         this.viewport.scrollTo({
-          [spacings[orientation]]: (event[clients[orientation]] - this.boundingBoxes[orientation].scrollbarTrack[spacings[orientation]] - this.sizes[orientation].scrollbarThumb / 2) * this.ratios[orientation],
+          [spacings[orientation]]: (event[clients[orientation]] - scrollbarTrackBoundingBox[spacings[orientation]] - scrollbarThumbBoundingBox[sizes[orientation]] / 2) * this.ratios[orientation] * this.scrollRatios[orientation],
           behavior: 'smooth',
         });
 
@@ -343,6 +350,14 @@ export class ScrollableComponentElement extends HTMLElement {
       this.elements[orientation].scrollbarThumb.addEventListener('mousedown', (event) => {
         event.preventDefault();
         event.stopPropagation();
+
+        // Update scroll ratios each time we start scrolling, as the bounding client rect may have changed without triggering the resize observer
+        // e.g:
+        // - top/left after scrolling
+        // - width/height after CSS scale transform
+        const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
+        this.scrollRatios[orientation] = this.sizes[orientation].scrollbarTrack / scrollbarTrackBoundingBox[sizes[orientation]];
+
         document.body.style.setProperty('pointer-events', 'none');
         this.isScrollingWithThumb[orientation] = true;
         this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
@@ -359,7 +374,7 @@ export class ScrollableComponentElement extends HTMLElement {
       for (let orientation of orientations) {
         if (this.isScrollingWithThumb[orientation]) {
           const scrollbarThumbOffset = (event.touches ? event.touches[0][pages[orientation]] : event[pages[orientation]]) - this.scrollingWithThumbOrigin[pages[orientation]];
-          this.viewport[scrollSpacings[orientation]] = this.scrollingWithThumbOrigin[scrollSpacings[orientation]] + scrollbarThumbOffset * this.ratios[orientation];
+          this.viewport[scrollSpacings[orientation]] = this.scrollingWithThumbOrigin[scrollSpacings[orientation]] + scrollbarThumbOffset * this.ratios[orientation] * this.scrollRatios[orientation];
           break;
         }
       }
@@ -462,13 +477,11 @@ export class ScrollableComponentElement extends HTMLElement {
   updateCache() {
     // Caches as much as possible to avoid useless repaint/reflow
     const computedStyle = getComputedStyle(this.viewport);
-    this.boundingBoxes.viewport = this.viewport.getBoundingClientRect();
     for (let orientation of orientations) {
       this.restrictContentSize[orientation] = computedStyle.getPropertyValue(`--viewport-${overflows[orientation]}`).trim() === 'hidden';
-      this.boundingBoxes[orientation].scrollbarTrack = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
-      this.sizes[orientation].viewport = Math.floor(this.boundingBoxes.viewport[sizes[orientation]] * 10) / 10;
+      this.sizes[orientation].viewport = Math.floor(this.viewport[offsetSizes[orientation]] * 10) / 10;
       this.sizes[orientation].scroll = this.viewport[scrollSizes[orientation]];
-      this.sizes[orientation].scrollbarTrack = Math.floor(this.boundingBoxes[orientation].scrollbarTrack[sizes[orientation]] * 10) / 10;
+      this.sizes[orientation].scrollbarTrack = Math.floor(this.elements[orientation].scrollbarTrack[offsetSizes[orientation]] * 10) / 10;
       this.ratios[orientation] = this.sizes[orientation].scroll / this.sizes[orientation].scrollbarTrack;
     }
   }
