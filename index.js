@@ -371,6 +371,10 @@ export class ScrollableComponentElement extends HTMLElement {
         this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
         this.scrollingWithThumbOrigin[pageCoordinates[orientation]] = event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]];
         this.scrollingWithThumbOrigin[scrollPositions[orientation]] = this.viewport[scrollPositions[orientation]];
+
+        // Gives back the focus to the viewport after clicking the scrollbar's thumb,
+        // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
+        this.viewport.focus({preventScroll: true});
       });
     }
 
@@ -395,9 +399,6 @@ export class ScrollableComponentElement extends HTMLElement {
           this.isScrollingWithThumb[orientation] = false;
           this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
           this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
-          // Gives back the focus to the viewport after clicking the scrollbar's thumb,
-          // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-          this.viewport.focus({preventScroll: true});
         }
       }
     }, { passive: true });
