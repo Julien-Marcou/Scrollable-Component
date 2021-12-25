@@ -103,7 +103,6 @@ scrollableComponentTemplate.innerHTML = `
 
     /* Scrollbar */
     .scrollbar {
-      pointer-events: all;
       user-select: none;
       position: absolute;
       padding: var(--scrollbar-padding);
@@ -158,6 +157,7 @@ scrollableComponentTemplate.innerHTML = `
     }
     .scrollbar:hover,
     .scrollbar.scrolling-with-thumb {
+      pointer-events: all;
       z-index: 30;
       background-color: var(--scrollbar-fill-color-hover);
     }
@@ -364,7 +364,7 @@ export class ScrollableComponentElement extends HTMLElement {
         const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
         this.scrollingWithThumbRatios[orientation] = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
 
-        document.body.style.setProperty('pointer-events', 'none');
+        document.documentElement.style.setProperty('pointer-events', 'none');
         this.isScrollingWithThumb[orientation] = true;
         this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
         this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
@@ -390,7 +390,7 @@ export class ScrollableComponentElement extends HTMLElement {
     document.addEventListener('mouseup', () => {
       for (let orientation of orientations) {
         if (this.isScrollingWithThumb[orientation]) {
-          document.body.style.removeProperty('pointer-events');
+          document.documentElement.style.removeProperty('pointer-events');
           this.isScrollingWithThumb[orientation] = false;
           this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
           this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
