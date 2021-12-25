@@ -78,13 +78,6 @@ scrollableComponentTemplate.innerHTML = `
       width: 0;
       height: 0;
     }
-    .viewport:hover,
-    .viewport:not(:focus):focus-within,
-    .viewport.touch,
-    .viewport.scrolling-with-vertical-thumb,
-    .viewport.scrolling-with-horizontal-thumb {
-      will-change: scroll-position;
-    }
 
     /* Content */
     .content {
@@ -144,7 +137,6 @@ scrollableComponentTemplate.innerHTML = `
     .viewport:hover ~ .scrollbar,
     .viewport:not(:focus):focus-within ~ .scrollbar,
     .viewport.touch ~ .scrollbar {
-      will-change: opacity;
       opacity: 1;
       transition: opacity var(--fade-in-transition-duration) ease-in-out 0s, background-color var(--fill-color-transition-duration) ease-out;
     }
