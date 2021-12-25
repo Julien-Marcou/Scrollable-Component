@@ -459,28 +459,13 @@ export class ScrollableComponentElement extends HTMLElement {
 
   attributeChangedCallback(attributeName, oldValue, newValue) {
     if (attributeName === 'scrollbar-visibility') {
-      if (newValue === 'always') {
-        this.viewport.classList.add('scrollbar-visible');
-      }
-      else {
-        this.viewport.classList.remove('scrollbar-visible');
-      }
+      this.viewport.classList.toggle('scrollbar-visible', newValue === 'always');
     }
     else if (attributeName === 'vertical-scrollbar-position') {
-      if (newValue === 'left') {
-        this.elements.vertical.scrollbar.classList.add('left-position');
-      }
-      else {
-        this.elements.vertical.scrollbar.classList.remove('left-position');
-      }
+      this.elements.vertical.scrollbar.classList.toggle('left-position', newValue === 'left');
     }
     else if (attributeName === 'horizontal-scrollbar-position') {
-      if (newValue === 'top') {
-        this.elements.horizontal.scrollbar.classList.add('top-position');
-      }
-      else {
-        this.elements.horizontal.scrollbar.classList.remove('top-position');
-      }
+      this.elements.horizontal.scrollbar.classList.toggle('top-position', newValue === 'top');
     }
   }
 
