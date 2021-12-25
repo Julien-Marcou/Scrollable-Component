@@ -104,6 +104,7 @@ scrollableComponentTemplate.innerHTML = `
     /* Scrollbar */
     .scrollbar {
       user-select: none;
+      touch-action: none;
       position: absolute;
       padding: var(--scrollbar-padding);
       border-width: var(--scrollbar-border-width);
@@ -329,8 +330,8 @@ export class ScrollableComponentElement extends HTMLElement {
       this.elements[orientation].scrollbarTrack = this.elements[orientation].scrollbar.querySelector('.scrollbar-track');
       this.elements[orientation].scrollbarThumb = this.elements[orientation].scrollbarTrack.querySelector('.scrollbar-thumb');
 
-      // Scroll to mouse position in scrollbar's track
-      this.elements[orientation].scrollbarTrack.addEventListener('mousedown', (event) => {
+      // Scroll to pointer position in scrollbar's track
+      this.elements[orientation].scrollbarTrack.addEventListener('pointerdown', (event) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -354,7 +355,7 @@ export class ScrollableComponentElement extends HTMLElement {
       });
 
       // Start of scrolling with thumb
-      this.elements[orientation].scrollbarThumb.addEventListener('mousedown', (event) => {
+      this.elements[orientation].scrollbarThumb.addEventListener('pointerdown', (event) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -374,7 +375,7 @@ export class ScrollableComponentElement extends HTMLElement {
     }
 
     // Scrolling with thumb
-    document.addEventListener('mousemove', (event) => {
+    document.addEventListener('pointermove', (event) => {
       for (let orientation of orientations) {
         if (this.isScrollingWithThumb[orientation]) {
           const scrollbarThumbOffset = (event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]]) - this.scrollingWithThumbOrigin[pageCoordinates[orientation]];
@@ -387,7 +388,7 @@ export class ScrollableComponentElement extends HTMLElement {
     }, { passive: true });
 
     // End of scrolling with thumb
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('pointerup', () => {
       for (let orientation of orientations) {
         if (this.isScrollingWithThumb[orientation]) {
           document.documentElement.style.removeProperty('pointer-events');
