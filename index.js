@@ -344,14 +344,18 @@ export class ScrollableComponentElement extends HTMLElement {
         const scrollingRatios = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
         const newViewportScollPosition = newScrollbarThumbPosition / this.viewportToScrollbarRatios[orientation] * scrollingRatios;
 
-        this.viewport.scrollTo({
-          [positions[orientation]]: newViewportScollPosition,
-          behavior: 'smooth',
-        });
+        // Request animation frame to end the event listener early as we don't need it anymore
+        // This helps split the DOM reads & DOM writes to improve performance
+        requestAnimationFrame(() => {
+          this.viewport.scrollTo({
+            [positions[orientation]]: newViewportScollPosition,
+            behavior: 'smooth',
+          });
 
-        // Gives back the focus to the viewport after clicking the scrollbar's track,
-        // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-        this.viewport.focus({preventScroll: true});
+          // Gives back the focus to the viewport after clicking the scrollbar's track,
+          // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
+          this.viewport.focus({preventScroll: true});
+        });
       });
 
       // Start of scrolling with thumb
@@ -364,17 +368,21 @@ export class ScrollableComponentElement extends HTMLElement {
         // i.e: after CSS scale transform
         const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
         this.scrollingWithThumbRatios[orientation] = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
-
-        document.documentElement.style.setProperty('pointer-events', 'none');
-        this.isScrollingWithThumb[orientation] = true;
-        this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
-        this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
         this.scrollingWithThumbOrigin[pageCoordinates[orientation]] = event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]];
         this.scrollingWithThumbOrigin[scrollPositions[orientation]] = this.viewport[scrollPositions[orientation]];
+        this.isScrollingWithThumb[orientation] = true;
 
-        // Gives back the focus to the viewport after clicking the scrollbar's thumb,
-        // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-        this.viewport.focus({preventScroll: true});
+        // Request animation frame to end the event listener early as we don't need it anymore
+        // This helps split the DOM reads & DOM writes to improve performance
+        requestAnimationFrame(() => {
+          document.documentElement.style.setProperty('pointer-events', 'none');
+          this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
+          this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
+
+          // Gives back the focus to the viewport after clicking the scrollbar's thumb,
+          // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
+          this.viewport.focus({preventScroll: true});
+        });
       });
     }
 
@@ -395,8 +403,8 @@ export class ScrollableComponentElement extends HTMLElement {
     document.addEventListener('pointerup', () => {
       for (let orientation of orientations) {
         if (this.isScrollingWithThumb[orientation]) {
-          document.documentElement.style.removeProperty('pointer-events');
           this.isScrollingWithThumb[orientation] = false;
+          document.documentElement.style.removeProperty('pointer-events');
           this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
           this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
         }
