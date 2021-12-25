@@ -268,22 +268,12 @@ export class ScrollableComponentElement extends HTMLElement {
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot.appendChild(scrollableComponentTemplate.content.cloneNode(true));
-    this.viewport = this.shadowRoot.querySelector('.viewport');
-    this.content = this.viewport.querySelector('.content');
-    this.elements = {
-      vertical: {
-        scrollbar: null,
-        scrollbarTrack: null,
-        scrollbarThumb: null,
-      },
-      horizontal: {
-        scrollbar: null,
-        scrollbarTrack: null,
-        scrollbarThumb: null,
-      },
-    };
+    this.#initializeFields();
+    this.#initializeLayout();
+    this.#initializeEventListeners();
+  }
+
+  #initializeFields() {
     this.restrictContentSize = {
       vertical: false,
       horizontal: false,
@@ -319,48 +309,44 @@ export class ScrollableComponentElement extends HTMLElement {
       horizontal: 1,
     };
     this.animationFrame = null;
+  }
 
+  #initializeLayout() {
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.appendChild(scrollableComponentTemplate.content.cloneNode(true));
+    this.viewport = this.shadowRoot.querySelector('.viewport');
+    this.content = this.viewport.querySelector('.content');
+    this.elements = {
+      vertical: {
+        scrollbar: null,
+        scrollbarTrack: null,
+        scrollbarThumb: null,
+      },
+      horizontal: {
+        scrollbar: null,
+        scrollbarTrack: null,
+        scrollbarThumb: null,
+      },
+    };
     for (let orientation of orientations) {
       this.elements[orientation].scrollbar = this.shadowRoot.querySelector(`.${[orientation]}-scrollbar`);
       this.elements[orientation].scrollbarTrack = this.elements[orientation].scrollbar.querySelector('.scrollbar-track');
       this.elements[orientation].scrollbarThumb = this.elements[orientation].scrollbarTrack.querySelector('.scrollbar-thumb');
+    }
+  }
 
+  #initializeEventListeners() {
+    for (let orientation of orientations) {
       // Scroll to pointer position in scrollbar's track
       this.elements[orientation].scrollbarTrack.addEventListener('pointerdown', (event) => {
         event.preventDefault();
         event.stopPropagation();
-
-        // When scrolling using the custom scrollbar's track, we need to use "fresh" bounding client rects to ensure correct results,
-        // as the scrollbar's track & thumb may have their size and position changed without triggering the resize observer,
-        // i.e: position after scrolling or size after CSS scale transform
-        const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
-        const scrollbarThumbBoundingBox = this.elements[orientation].scrollbarThumb.getBoundingClientRect();
-        const newScrollbarThumbPosition = event[clientCoordinates[orientation]] - scrollbarTrackBoundingBox[positions[orientation]] - scrollbarThumbBoundingBox[sizes[orientation]] / 2;
-        const scrollingRatios = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
-        const newViewportScollPosition = newScrollbarThumbPosition / this.viewportToScrollbarRatios[orientation] * scrollingRatios;
-
-        // Request animation frame to end the event listener early as we don't need it anymore
-        // This helps split the DOM reads & DOM writes to improve performance
-        requestAnimationFrame(() => {
-          this.viewport.scrollTo({
-            [positions[orientation]]: newViewportScollPosition,
-            behavior: 'smooth',
-          });
-
-          // Gives back the focus to the viewport after clicking the scrollbar's track,
-          // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-          this.viewport.focus({preventScroll: true});
-        });
+        this.#onScrollWithTrack(orientation, event);
       });
 
       // Scrolling with thumb
       const onScrollWithThumbMove = (event) => {
-        if (this.isScrollingWithThumb[orientation]) {
-          const scrollbarThumbOffset = (event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]]) - this.scrollingWithThumbOrigin[pageCoordinates[orientation]];
-          const viewportScrollOffset = scrollbarThumbOffset / this.viewportToScrollbarRatios[orientation] * this.scrollingWithThumbRatios[orientation];
-          const newViewportScrollPosition = this.scrollingWithThumbOrigin[scrollPositions[orientation]] + viewportScrollOffset;
-          this.viewport[scrollPositions[orientation]] = newViewportScrollPosition;
-        }
+        this.#onScrollWithThumbMove(orientation, event);
       };
 
       // Start of scrolling with thumb
@@ -369,78 +355,134 @@ export class ScrollableComponentElement extends HTMLElement {
         event.stopPropagation();
         this.elements[orientation].scrollbarThumb.addEventListener('pointermove', onScrollWithThumbMove, { passive: true });
         this.elements[orientation].scrollbarThumb.setPointerCapture(event.pointerId);
-
-        // When scrolling using the custom scrollbar's thumb, we need to use "fresh" bounding client rects to ensure correct results,
-        // as the scrollbar's track may have its size and position changed without triggering the resize observer,
-        // i.e: after CSS scale transform
-        const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
-        this.scrollingWithThumbRatios[orientation] = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
-        this.scrollingWithThumbOrigin[pageCoordinates[orientation]] = event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]];
-        this.scrollingWithThumbOrigin[scrollPositions[orientation]] = this.viewport[scrollPositions[orientation]];
-        this.isScrollingWithThumb[orientation] = true;
-
-        // Request animation frame to end the event listener early as we don't need it anymore
-        // This helps split the DOM reads & DOM writes to improve performance
-        requestAnimationFrame(() => {
-          this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
-          this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
-
-          // Gives back the focus to the viewport after clicking the scrollbar's thumb,
-          // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-          this.viewport.focus({preventScroll: true});
-        });
+        this.#onScrollWithThumbStart(orientation, event);
       });
 
       // End of scrolling with thumb
       this.elements[orientation].scrollbarThumb.addEventListener('pointerup', (event) => {
         this.elements[orientation].scrollbarThumb.removeEventListener('pointermove', onScrollWithThumbMove, { passive: true });
         this.elements[orientation].scrollbarThumb.releasePointerCapture(event.pointerId);
-        if (this.isScrollingWithThumb[orientation]) {
-          this.isScrollingWithThumb[orientation] = false;
-          this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
-          this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
-        }
+        this.#onScrollWithThumbEnd(orientation);
       }, { passive: true });
     }
 
+    // Update scrollbar's thumb position when scrolling
+    this.viewport.addEventListener('scroll', () => {
+      this.#onScrollEvent();
+    }, { passive: true });
+
     // Show scrollbars when start scrolling with touch gestures
     this.viewport.addEventListener('touchstart', () => {
-      this.viewport.classList.add('touch');
+      this.#onTouchStart();
     }, { passive: true });
 
     // Hide scrollbars at the end of scrolling with touch gestures
     this.viewport.addEventListener('touchend', () => {
-      this.viewport.classList.remove('touch');
-    }, { passive: true });
-
-    // Update scrollbar's thumb position when scrolling
-    this.viewport.addEventListener('scroll', () => {
-      if (this.animationFrame) {
-        return;
-      }
-      this.animationFrame = requestAnimationFrame(() => {
-        this.updateScrollPositions();
-        this.animationFrame = null;
-      });
+      this.#onTouchEnd();
     }, { passive: true });
 
     // Update entire scrollbar when resizing the viewport or the content
     const resizeObserver = new ResizeObserver(() => {
-      this.updateCache();
-      if (this.animationFrame) {
-        return;
-      }
-      this.animationFrame = requestAnimationFrame(() => {
-        this.updateProperties();
-        this.updateScrollPositions();
-        this.animationFrame = null;
-      });
+      this.#onResizeEvent();
     });
     resizeObserver.observe(this.viewport);
     resizeObserver.observe(this.content);
     for (let orientation of orientations) {
       resizeObserver.observe(this.elements[orientation].scrollbarTrack);
     }
+  }
+
+  #onScrollWithTrack(orientation, event) {
+    // When scrolling using the custom scrollbar's track, we need to use "fresh" bounding client rects to ensure correct results,
+    // as the scrollbar's track & thumb may have their size and position changed without triggering the resize observer,
+    // i.e: position after scrolling or size after CSS scale transform
+    const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
+    const scrollbarThumbBoundingBox = this.elements[orientation].scrollbarThumb.getBoundingClientRect();
+    const newScrollbarThumbPosition = event[clientCoordinates[orientation]] - scrollbarTrackBoundingBox[positions[orientation]] - scrollbarThumbBoundingBox[sizes[orientation]] / 2;
+    const scrollingRatios = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
+    const newViewportScollPosition = newScrollbarThumbPosition / this.viewportToScrollbarRatios[orientation] * scrollingRatios;
+
+    // Request animation frame to end the event listener early as we don't need it anymore
+    // This helps split the DOM reads & DOM writes to improve performance
+    requestAnimationFrame(() => {
+      this.viewport.scrollTo({
+        [positions[orientation]]: newViewportScollPosition,
+        behavior: 'smooth',
+      });
+
+      // Gives back the focus to the viewport after clicking the scrollbar's track,
+      // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
+      this.viewport.focus({preventScroll: true});
+    });
+  }
+
+  #onScrollWithThumbStart(orientation, event) {
+    // When scrolling using the custom scrollbar's thumb, we need to use "fresh" bounding client rects to ensure correct results,
+    // as the scrollbar's track may have its size and position changed without triggering the resize observer,
+    // i.e: after CSS scale transform
+    const scrollbarTrackBoundingBox = this.elements[orientation].scrollbarTrack.getBoundingClientRect();
+    this.scrollingWithThumbRatios[orientation] = this.scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
+    this.scrollingWithThumbOrigin[pageCoordinates[orientation]] = event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]];
+    this.scrollingWithThumbOrigin[scrollPositions[orientation]] = this.viewport[scrollPositions[orientation]];
+    this.isScrollingWithThumb[orientation] = true;
+
+    // Request animation frame to end the event listener early as we don't need it anymore
+    // This helps split the DOM reads & DOM writes to improve performance
+    requestAnimationFrame(() => {
+      this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
+      this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
+
+      // Gives back the focus to the viewport after clicking the scrollbar's thumb,
+      // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
+      this.viewport.focus({preventScroll: true});
+    });
+  }
+
+  #onScrollWithThumbMove(orientation, event) {
+    if (this.isScrollingWithThumb[orientation]) {
+      const scrollbarThumbOffset = (event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]]) - this.scrollingWithThumbOrigin[pageCoordinates[orientation]];
+      const viewportScrollOffset = scrollbarThumbOffset / this.viewportToScrollbarRatios[orientation] * this.scrollingWithThumbRatios[orientation];
+      const newViewportScrollPosition = this.scrollingWithThumbOrigin[scrollPositions[orientation]] + viewportScrollOffset;
+      this.viewport[scrollPositions[orientation]] = newViewportScrollPosition;
+    }
+  }
+
+  #onScrollWithThumbEnd(orientation) {
+    if (this.isScrollingWithThumb[orientation]) {
+      this.isScrollingWithThumb[orientation] = false;
+      this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
+      this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
+    }
+  }
+
+  #onTouchStart() {
+    this.viewport.classList.add('touch');
+  }
+
+  #onTouchEnd() {
+    this.viewport.classList.remove('touch');
+  }
+
+  #onScrollEvent() {
+    if (this.animationFrame) {
+      return;
+    }
+    this.animationFrame = requestAnimationFrame(() => {
+      this.updateScrollPositions();
+      this.animationFrame = null;
+    });
+  }
+
+  #onResizeEvent() {
+    this.updateCache();
+    if (this.animationFrame) {
+      return;
+    }
+    this.animationFrame = requestAnimationFrame(() => {
+      this.updateProperties();
+      this.updateScrollPositions();
+      this.animationFrame = null;
+    });
   }
 
   connectedCallback() {
