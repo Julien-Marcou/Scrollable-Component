@@ -85,10 +85,6 @@ scrollableComponentTemplate.innerHTML = `
     .viewport.scrolling-with-horizontal-thumb {
       will-change: scroll-position;
     }
-    .viewport.scrolling-with-vertical-thumb,
-    .viewport.scrolling-with-horizontal-thumb {
-      pointer-events: none;
-    }
 
     /* Content */
     .content {
@@ -158,7 +154,6 @@ scrollableComponentTemplate.innerHTML = `
     }
     .scrollbar:hover,
     .scrollbar.scrolling-with-thumb {
-      pointer-events: all;
       z-index: 30;
       background-color: var(--scrollbar-fill-color-hover);
     }
@@ -358,10 +353,22 @@ export class ScrollableComponentElement extends HTMLElement {
         });
       });
 
+      // Scrolling with thumb
+      const onScrollWithThumbMove = (event) => {
+        if (this.isScrollingWithThumb[orientation]) {
+          const scrollbarThumbOffset = (event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]]) - this.scrollingWithThumbOrigin[pageCoordinates[orientation]];
+          const viewportScrollOffset = scrollbarThumbOffset / this.viewportToScrollbarRatios[orientation] * this.scrollingWithThumbRatios[orientation];
+          const newViewportScrollPosition = this.scrollingWithThumbOrigin[scrollPositions[orientation]] + viewportScrollOffset;
+          this.viewport[scrollPositions[orientation]] = newViewportScrollPosition;
+        }
+      };
+
       // Start of scrolling with thumb
       this.elements[orientation].scrollbarThumb.addEventListener('pointerdown', (event) => {
         event.preventDefault();
         event.stopPropagation();
+        this.elements[orientation].scrollbarThumb.addEventListener('pointermove', onScrollWithThumbMove, { passive: true });
+        this.elements[orientation].scrollbarThumb.setPointerCapture(event.pointerId);
 
         // When scrolling using the custom scrollbar's thumb, we need to use "fresh" bounding client rects to ensure correct results,
         // as the scrollbar's track may have its size and position changed without triggering the resize observer,
@@ -375,7 +382,6 @@ export class ScrollableComponentElement extends HTMLElement {
         // Request animation frame to end the event listener early as we don't need it anymore
         // This helps split the DOM reads & DOM writes to improve performance
         requestAnimationFrame(() => {
-          document.documentElement.style.setProperty('pointer-events', 'none');
           this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
           this.elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
 
@@ -384,32 +390,18 @@ export class ScrollableComponentElement extends HTMLElement {
           this.viewport.focus({preventScroll: true});
         });
       });
-    }
 
-    // Scrolling with thumb
-    document.addEventListener('pointermove', (event) => {
-      for (let orientation of orientations) {
-        if (this.isScrollingWithThumb[orientation]) {
-          const scrollbarThumbOffset = (event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]]) - this.scrollingWithThumbOrigin[pageCoordinates[orientation]];
-          const viewportScrollOffset = scrollbarThumbOffset / this.viewportToScrollbarRatios[orientation] * this.scrollingWithThumbRatios[orientation];
-          const newViewportScrollPosition = this.scrollingWithThumbOrigin[scrollPositions[orientation]] + viewportScrollOffset;
-          this.viewport[scrollPositions[orientation]] = newViewportScrollPosition;
-          break;
-        }
-      }
-    }, { passive: true });
-
-    // End of scrolling with thumb
-    document.addEventListener('pointerup', () => {
-      for (let orientation of orientations) {
+      // End of scrolling with thumb
+      this.elements[orientation].scrollbarThumb.addEventListener('pointerup', (event) => {
+        this.elements[orientation].scrollbarThumb.removeEventListener('pointermove', onScrollWithThumbMove, { passive: true });
+        this.elements[orientation].scrollbarThumb.releasePointerCapture(event.pointerId);
         if (this.isScrollingWithThumb[orientation]) {
           this.isScrollingWithThumb[orientation] = false;
-          document.documentElement.style.removeProperty('pointer-events');
           this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
           this.elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
         }
-      }
-    }, { passive: true });
+      }, { passive: true });
+    }
 
     // Show scrollbars when start scrolling with touch gestures
     this.viewport.addEventListener('touchstart', () => {
