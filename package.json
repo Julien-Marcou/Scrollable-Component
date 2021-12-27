@@ -19,7 +19,15 @@
     "custom-element",
     "web-component"
   ],
+  "scripts": {
+    "build": "node build.js"
+  },
   "main": "index.js",
   "type": "module",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "csso": "^5.0.2",
+    "html-minifier-terser": "^6.1.0",
+    "terser": "^5.10.0"
+  }
 }
