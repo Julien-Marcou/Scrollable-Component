@@ -37,49 +37,58 @@ const pageCoordinates = {
 
 export class ScrollableComponentElement extends HTMLElement {
 
+  elements = {
+    vertical: {
+      scrollbar: null,
+      scrollbarTrack: null,
+      scrollbarThumb: null,
+    },
+    horizontal: {
+      scrollbar: null,
+      scrollbarTrack: null,
+      scrollbarThumb: null,
+    },
+  };
+  restrictContentSize = {
+    vertical: false,
+    horizontal: false,
+  };
+  viewportSize = {
+    vertical: 0,
+    horizontal: 0,
+  };
+  scrollbarTrackSize = {
+    vertical: 0,
+    horizontal: 0,
+  };
+  viewportToScrollbarRatios = {
+    vertical: 1,
+    horizontal: 1,
+  };
+  isOverflowing = {
+    vertical: false,
+    horizontal: false,
+  };
+  isScrollingWithThumb = {
+    vertical: false,
+    horizontal: false,
+  };
+  scrollingWithThumbOrigin = {
+    pageX: 0,
+    pageY: 0,
+    scrollTop: 0,
+    scrollLeft: 0,
+  };
+  scrollingWithThumbRatios = {
+    vertical: 1,
+    horizontal: 1,
+  };
+  animationFrame = null;
+
   constructor() {
     super();
-    this.#initializeFields();
     this.#initializeLayout();
     this.#initializeEventListeners();
-  }
-
-  #initializeFields() {
-    this.restrictContentSize = {
-      vertical: false,
-      horizontal: false,
-    };
-    this.viewportSize = {
-      vertical: 0,
-      horizontal: 0,
-    };
-    this.scrollbarTrackSize = {
-      vertical: 0,
-      horizontal: 0,
-    };
-    this.viewportToScrollbarRatios = {
-      vertical: 1,
-      horizontal: 1,
-    };
-    this.isOverflowing = {
-      vertical: false,
-      horizontal: false,
-    };
-    this.isScrollingWithThumb = {
-      vertical: false,
-      horizontal: false,
-    };
-    this.scrollingWithThumbOrigin = {
-      pageX: 0,
-      pageY: 0,
-      scrollTop: 0,
-      scrollLeft: 0,
-    };
-    this.scrollingWithThumbRatios = {
-      vertical: 1,
-      horizontal: 1,
-    };
-    this.animationFrame = null;
   }
 
   #initializeLayout() {
@@ -87,18 +96,6 @@ export class ScrollableComponentElement extends HTMLElement {
     this.shadowRoot.appendChild(scrollableComponentTemplate.content.cloneNode(true));
     this.viewport = this.shadowRoot.querySelector('.viewport');
     this.content = this.viewport.querySelector('.content');
-    this.elements = {
-      vertical: {
-        scrollbar: null,
-        scrollbarTrack: null,
-        scrollbarThumb: null,
-      },
-      horizontal: {
-        scrollbar: null,
-        scrollbarTrack: null,
-        scrollbarThumb: null,
-      },
-    };
     for (let orientation of orientations) {
       this.elements[orientation].scrollbar = this.shadowRoot.querySelector(`.${[orientation]}-scrollbar`);
       this.elements[orientation].scrollbarTrack = this.elements[orientation].scrollbar.querySelector('.scrollbar-track');
