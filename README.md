@@ -202,6 +202,7 @@ scrollable-component {
   --viewport-scroll-snap-type: none;
   --viewport-scroll-behavior: auto;
   --viewport-overscroll-behavior: auto;
+  --viewport-z-index: 0;
 
   /* Scrollbar look */
   --scrollbar-width: 16px;
@@ -211,12 +212,15 @@ scrollable-component {
   --scrollbar-border: 0 none;
   --scrollbar-border-radius: 0;
   --scrollbar-box-shadow: none;
+  --scrollbar-hover-z-index: 30;
   --vertical-scrollbar-padding: var(--scrollbar-padding);
   --vertical-scrollbar-background: none;
   --vertical-scrollbar-background-size: auto;
+  --vertical-scrollbar-z-index: 20;
   --horizontal-scrollbar-padding: var(--scrollbar-padding);
   --horizontal-scrollbar-background: none;
   --horizontal-scrollbar-background-size: auto;
+  --horizontal-scrollbar-z-index: 10;
 
   /* Scrollbar's track look */
   --scrollbar-track-fill-color: transparent;
