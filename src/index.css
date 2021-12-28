@@ -12,6 +12,7 @@
   --viewport-scroll-snap-type: none;
   --viewport-scroll-behavior: auto;
   --viewport-overscroll-behavior: auto;
+  --viewport-z-index: 0;
 
   --scrollbar-width: 16px;
   --scrollbar-padding: 2px;
@@ -22,12 +23,15 @@
   --scrollbar-border-color: #999;
   --scrollbar-border-radius: 0;
   --scrollbar-box-shadow: none;
+  --scrollbar-z-index-hover: 30;
   --vertical-scrollbar-padding: var(--scrollbar-padding);
   --vertical-scrollbar-background: none;
   --vertical-scrollbar-background-size: auto;
+  --vertical-scrollbar-z-index: 20;
   --horizontal-scrollbar-padding: var(--scrollbar-padding);
   --horizontal-scrollbar-background: none;
   --horizontal-scrollbar-background-size: auto;
+  --horizontal-scrollbar-z-index: 10;
 
   --scrollbar-track-fill-color: transparent;
   --scrollbar-track-fill-color-hover: transparent;
@@ -63,7 +67,7 @@
 
 /* Viewport */
 .viewport {
-  z-index: 0;
+  z-index: var(--viewport-z-index);
   display: grid;
   overflow-x: var(--viewport-overflow-x);
   overflow-y: var(--viewport-overflow-y);
@@ -103,7 +107,7 @@
   transition: opacity var(--fade-out-transition-duration) ease-in-out var(--fade-out-transition-delay), background-color var(--fill-color-transition-duration) ease-out;
 }
 .vertical-scrollbar {
-  z-index: 20;
+  z-index: var(--vertical-scrollbar-z-index);
   width: var(--scrollbar-width);
   right: 0;
   top: 0;
@@ -118,7 +122,7 @@
   right: auto;
 }
 .horizontal-scrollbar {
-  z-index: 10;
+  z-index: var(--horizontal-scrollbar-z-index);
   height: var(--scrollbar-width);
   left: 0;
   right: 0;
@@ -146,7 +150,7 @@
 }
 .scrollbar:hover,
 .scrollbar.scrolling-with-thumb {
-  z-index: 30;
+  z-index: var(--scrollbar-z-index-hover);
   background-color: var(--scrollbar-fill-color-hover);
 }
 .scrollbar.hidden {
