@@ -18,7 +18,7 @@ scrollableComponentTemplate.innerHTML = `
       --viewport-z-index: 0;
 
       --scrollbar-width: 16px;
-      --scrollbar-padding: 0;
+      --scrollbar-padding: 2px;
       --scrollbar-fill-color: transparent;
       --scrollbar-fill-color-hover: transparent;
       --scrollbar-border-width: 0
@@ -29,11 +29,11 @@ scrollableComponentTemplate.innerHTML = `
       --scrollbar-z-index-hover: 30;
       --vertical-scrollbar-background: none;
       --vertical-scrollbar-background-size: auto;
-      --vertical-scrollbar-padding: 2px;
+      --vertical-scrollbar-padding: var(--scrollbar-padding);
       --vertical-scrollbar-z-index: 20;
       --horizontal-scrollbar-background: none;
       --horizontal-scrollbar-background-size: auto;
-      --horizontal-scrollbar-padding: 2px;
+      --horizontal-scrollbar-padding: var(--scrollbar-padding);
       --horizontal-scrollbar-z-index: 10;
 
       --scrollbar-track-fill-color: transparent;
