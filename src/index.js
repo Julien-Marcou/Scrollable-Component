@@ -46,6 +46,32 @@ export class ScrollableComponentElement extends HTMLElement {
     this.#initializeEventListeners();
   }
 
+  static get observedAttributes() {
+    return [
+      'scrollbar-visibility',
+      'vertical-scrollbar-position',
+      'horizontal-scrollbar-position',
+    ];
+  }
+
+  connectedCallback() {
+    this.#updateCache();
+    this.#updateProperties();
+    this.#updateScrollPositions();
+  }
+
+  attributeChangedCallback(attributeName, oldValue, newValue) {
+    if (attributeName === 'scrollbar-visibility') {
+      this.viewport.classList.toggle('scrollbar-visible', newValue === 'always');
+    }
+    else if (attributeName === 'vertical-scrollbar-position') {
+      this.#elements[vertical].scrollbar.classList.toggle('left-position', newValue === 'left');
+    }
+    else if (attributeName === 'horizontal-scrollbar-position') {
+      this.#elements[horizontal].scrollbar.classList.toggle('top-position', newValue === 'top');
+    }
+  }
+
   #initializeFields() {
     for (let orientation of orientations) {
       this.#elements[orientation.key] = {
@@ -244,28 +270,6 @@ export class ScrollableComponentElement extends HTMLElement {
       this.#updateScrollPositions();
       this.#scrollingAnimationFrame = null;
     });
-  }
-
-  connectedCallback() {
-    this.#updateCache();
-    this.#updateProperties();
-    this.#updateScrollPositions();
-  }
-
-  attributeChangedCallback(attributeName, oldValue, newValue) {
-    if (attributeName === 'scrollbar-visibility') {
-      this.viewport.classList.toggle('scrollbar-visible', newValue === 'always');
-    }
-    else if (attributeName === 'vertical-scrollbar-position') {
-      this.#elements[vertical].scrollbar.classList.toggle('left-position', newValue === 'left');
-    }
-    else if (attributeName === 'horizontal-scrollbar-position') {
-      this.#elements[horizontal].scrollbar.classList.toggle('top-position', newValue === 'top');
-    }
-  }
-
-  static get observedAttributes() {
-    return ['scrollbar-visibility', 'vertical-scrollbar-position', 'horizontal-scrollbar-position'];
   }
 
   #updateCache() {
