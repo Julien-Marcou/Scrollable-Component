@@ -23,7 +23,7 @@
   --scrollbar-border-color: #999;
   --scrollbar-border-radius: 0;
   --scrollbar-box-shadow: none;
-  --scrollbar-hover-z-index: 30;
+  --scrollbar-z-index-hover: 30;
   --vertical-scrollbar-padding: var(--scrollbar-padding);
   --vertical-scrollbar-background: none;
   --vertical-scrollbar-background-size: auto;
@@ -150,7 +150,7 @@
 }
 .scrollbar:hover,
 .scrollbar.scrolling-with-thumb {
-  z-index: var(--scrollbar-hover-z-index);
+  z-index: var(--scrollbar-z-index-hover);
   background-color: var(--scrollbar-fill-color-hover);
 }
 .scrollbar.hidden {
