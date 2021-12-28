@@ -211,8 +211,10 @@ scrollable-component {
   --scrollbar-border: 0 none;
   --scrollbar-border-radius: 0;
   --scrollbar-box-shadow: none;
+  --vertical-scrollbar-padding: var(--scrollbar-padding);
   --vertical-scrollbar-background: none;
   --vertical-scrollbar-background-size: auto;
+  --horizontal-scrollbar-padding: var(--scrollbar-padding);
   --horizontal-scrollbar-background: none;
   --horizontal-scrollbar-background-size: auto;
 

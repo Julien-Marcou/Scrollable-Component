@@ -22,8 +22,10 @@
   --scrollbar-border-color: #999;
   --scrollbar-border-radius: 0;
   --scrollbar-box-shadow: none;
+  --vertical-scrollbar-padding: var(--scrollbar-padding);
   --vertical-scrollbar-background: none;
   --vertical-scrollbar-background-size: auto;
+  --horizontal-scrollbar-padding: var(--scrollbar-padding);
   --horizontal-scrollbar-background: none;
   --horizontal-scrollbar-background-size: auto;
 
@@ -92,7 +94,6 @@
   user-select: none;
   touch-action: none;
   position: absolute;
-  padding: var(--scrollbar-padding);
   border-width: var(--scrollbar-border-width);
   border-style: var(--scrollbar-border-style);
   border-color: var(--scrollbar-border-color);
@@ -107,6 +108,7 @@
   right: 0;
   top: 0;
   bottom: 0;
+  padding: var(--vertical-scrollbar-padding);
   background: var(--vertical-scrollbar-background);
   background-color: var(--scrollbar-fill-color);
   background-size: var(--vertical-scrollbar-background-size);
@@ -121,6 +123,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  padding: var(--horizontal-scrollbar-padding);
   background: var(--horizontal-scrollbar-background);
   background-color: var(--scrollbar-fill-color);
   background-size: var(--horizontal-scrollbar-background-size);
