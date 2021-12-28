@@ -30,17 +30,27 @@ const jsOptions = {
   },
 };
 
-const minifiedCSS = minifyCSS(
-  readFileSync(cssInputFilename).toString(),
-  cssOptions,
-).css;
-const minifiedHTML = await minifyHTML(
-  readFileSync(htmlInputFilename).toString(),
-  htmlOptions,
-);
-const minifiedJS = await minifyJS(
-  readFileSync(jsInputFilename).toString().replace(cssToken, minifiedCSS).replace(htmlToken, minifiedHTML),
-  jsOptions,
-);
+const cssSource = readFileSync(cssInputFilename).toString();
+const htmlSource = readFileSync(htmlInputFilename).toString();
+const jsSource = readFileSync(jsInputFilename).toString();
 
-writeFileSync(outputFilename, minifiedJS.code);
+const debug = process.argv[2] === '--debug';
+
+if (debug) {
+  writeFileSync(outputFilename, jsSource.replace(cssToken, cssSource).replace(htmlToken, htmlSource));
+}
+else {
+  const minifiedCSS = minifyCSS(
+    cssSource,
+    cssOptions,
+  ).css;
+  const minifiedHTML = await minifyHTML(
+    htmlSource,
+    htmlOptions,
+  );
+  const minifiedJS = await minifyJS(
+    jsSource.replace(cssToken, minifiedCSS).replace(htmlToken, minifiedHTML),
+    jsOptions,
+  );
+  writeFileSync(outputFilename, minifiedJS.code);
+}

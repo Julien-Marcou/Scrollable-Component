@@ -20,7 +20,8 @@
     "web-component"
   ],
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "debug": "node build.js --debug"
   },
   "main": "index.js",
   "type": "module",
