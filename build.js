@@ -20,7 +20,7 @@ const jsOptions = {
   mangle: {
     toplevel: true,
     properties: {
-      reserved: ['vertical', 'horizontal', 'connectedCallback', 'attributeChangedCallback', 'observedAttributes']
+      reserved: ['connectedCallback', 'attributeChangedCallback', 'observedAttributes']
     },
   },
 };

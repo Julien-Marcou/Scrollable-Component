@@ -1,94 +1,74 @@
 const scrollableComponentTemplate = document.createElement('template');
 scrollableComponentTemplate.innerHTML = `<style>{{COMPONENT_CSS}}</style>{{COMPONENT_HTML}}`;
 
-const orientations = ['vertical', 'horizontal'];
-const sizes = {
-  vertical: 'height',
-  horizontal: 'width',
-};
-const offsetSizes = {
-  vertical: 'offsetHeight',
-  horizontal: 'offsetWidth',
-};
-const positions = {
-  vertical: 'top',
-  horizontal: 'left',
-};
-const scrollSizes = {
-  vertical: 'scrollHeight',
-  horizontal: 'scrollWidth',
-}
-const scrollPositions = {
-  vertical: 'scrollTop',
-  horizontal: 'scrollLeft',
-}
-const overflows = {
-  vertical: 'overflow-y',
-  horizontal: 'overflow-x',
-};
-const clientCoordinates = {
-  vertical: 'clientY',
-  horizontal: 'clientX',
-};
-const pageCoordinates = {
-  vertical: 'pageY',
-  horizontal: 'pageX',
-};
+const vertical = Symbol('vertical');
+const horizontal = Symbol('horizontal');
+const orientations = [
+  {
+    key: vertical,
+    name: 'vertical',
+    size: 'height',
+    offsetSize: 'offsetHeight',
+    scrollSize: 'scrollHeight',
+    position: 'top',
+    scrollPosition: 'scrollTop',
+    cssOverflow:'overflow-y',
+    clientCoordinate: 'clientY',
+    pageCoordinate: 'pageY',
+  },
+  {
+    key: horizontal,
+    name: 'horizontal',
+    size: 'width',
+    offsetSize: 'offsetWidth',
+    scrollSize: 'scrollWidth',
+    position: 'left',
+    scrollPosition: 'scrollLeft',
+    cssOverflow:'overflow-x',
+    clientCoordinate: 'clientX',
+    pageCoordinate: 'pageX',
+  },
+];
 
 export class ScrollableComponentElement extends HTMLElement {
 
-  #elements = {
-    vertical: {
-      scrollbar: null,
-      scrollbarTrack: null,
-      scrollbarThumb: null,
-    },
-    horizontal: {
-      scrollbar: null,
-      scrollbarTrack: null,
-      scrollbarThumb: null,
-    },
-  };
-  #restrictContentSize = {
-    vertical: false,
-    horizontal: false,
-  };
-  #viewportSize = {
-    vertical: 0,
-    horizontal: 0,
-  };
-  #scrollbarTrackSize = {
-    vertical: 0,
-    horizontal: 0,
-  };
-  #viewportToScrollbarRatios = {
-    vertical: 1,
-    horizontal: 1,
-  };
-  #isOverflowing = {
-    vertical: false,
-    horizontal: false,
-  };
-  #isScrollingWithThumb = {
-    vertical: false,
-    horizontal: false,
-  };
-  #scrollingWithThumbOrigin = {
-    pageX: 0,
-    pageY: 0,
-    scrollTop: 0,
-    scrollLeft: 0,
-  };
-  #scrollingWithThumbRatios = {
-    vertical: 1,
-    horizontal: 1,
-  };
-  #animationFrame = null;
+  viewport;
+  content;
+  #elements = {};
+  #cache = {};
+  #scrollbarThumb = {};
+  #scrollingAnimationFrame = null;
 
   constructor() {
     super();
+    this.#initializeFields();
     this.#initializeLayout();
     this.#initializeEventListeners();
+  }
+
+  #initializeFields() {
+    for (let orientation of orientations) {
+      this.#elements[orientation.key] = {
+        scrollbar: null,
+        scrollbarTrack: null,
+        scrollbarThumb: null,
+      };
+      this.#cache[orientation.key] = {
+        isOverflowing: false,
+        restrictContentSize: false,
+        viewportSize: 0,
+        scrollbarTrackSize: 0,
+        viewportToScrollbarRatio: 1,
+      };
+      this.#scrollbarThumb[orientation.key] = {
+        isScrolling: true,
+        scrollingRatio: 1,
+        scrollingOrigin: {
+          pageCoordinate: 0,
+          scrollPosition: 0,
+        },
+      };
+    }
   }
 
   #initializeLayout() {
@@ -97,16 +77,29 @@ export class ScrollableComponentElement extends HTMLElement {
     this.viewport = this.shadowRoot.querySelector('.viewport');
     this.content = this.viewport.querySelector('.content');
     for (let orientation of orientations) {
-      this.#elements[orientation].scrollbar = this.shadowRoot.querySelector(`.${[orientation]}-scrollbar`);
-      this.#elements[orientation].scrollbarTrack = this.#elements[orientation].scrollbar.querySelector('.scrollbar-track');
-      this.#elements[orientation].scrollbarThumb = this.#elements[orientation].scrollbarTrack.querySelector('.scrollbar-thumb');
+      const elements = this.#elements[orientation.key];
+      elements.scrollbar = this.shadowRoot.querySelector(`.${orientation.name}-scrollbar`);
+      elements.scrollbarTrack = elements.scrollbar.querySelector('.scrollbar-track');
+      elements.scrollbarThumb = elements.scrollbarTrack.querySelector('.scrollbar-thumb');
     }
   }
 
   #initializeEventListeners() {
+    // Update entire scrollbar when resizing the viewport or the content
+    const resizeObserver = new ResizeObserver(() => {
+      this.#onResizeEvent();
+    });
+    resizeObserver.observe(this.viewport);
+    resizeObserver.observe(this.content);
+
     for (let orientation of orientations) {
+      // Update entire scrollbar when resizing the scrollbar's track
+      const elements = this.#elements[orientation.key];
+      resizeObserver.observe(elements.scrollbarTrack);
+
       // Scroll to pointer position in scrollbar's track
-      this.#elements[orientation].scrollbarTrack.addEventListener('pointerdown', (event) => {
+      elements.scrollbarTrack.addEventListener('pointerdown', (event) => {
+        // Prevent default to avoid drag&drop
         event.preventDefault();
         event.stopPropagation();
         this.#onScrollWithTrack(orientation, event);
@@ -118,18 +111,19 @@ export class ScrollableComponentElement extends HTMLElement {
       };
 
       // Start of scrolling with thumb
-      this.#elements[orientation].scrollbarThumb.addEventListener('pointerdown', (event) => {
+      elements.scrollbarThumb.addEventListener('pointerdown', (event) => {
+        // Prevent default to avoid drag&drop
         event.preventDefault();
         event.stopPropagation();
-        this.#elements[orientation].scrollbarThumb.addEventListener('pointermove', onScrollWithThumbMove, { passive: true });
-        this.#elements[orientation].scrollbarThumb.setPointerCapture(event.pointerId);
+        elements.scrollbarThumb.addEventListener('pointermove', onScrollWithThumbMove, { passive: true });
+        elements.scrollbarThumb.setPointerCapture(event.pointerId);
         this.#onScrollWithThumbStart(orientation, event);
       });
 
       // End of scrolling with thumb
-      this.#elements[orientation].scrollbarThumb.addEventListener('pointerup', (event) => {
-        this.#elements[orientation].scrollbarThumb.removeEventListener('pointermove', onScrollWithThumbMove, { passive: true });
-        this.#elements[orientation].scrollbarThumb.releasePointerCapture(event.pointerId);
+      elements.scrollbarThumb.addEventListener('pointerup', (event) => {
+        elements.scrollbarThumb.removeEventListener('pointermove', onScrollWithThumbMove, { passive: true });
+        elements.scrollbarThumb.releasePointerCapture(event.pointerId);
         this.#onScrollWithThumbEnd(orientation);
       }, { passive: true });
     }
@@ -148,78 +142,77 @@ export class ScrollableComponentElement extends HTMLElement {
     this.viewport.addEventListener('touchend', () => {
       this.#onTouchEnd();
     }, { passive: true });
-
-    // Update entire scrollbar when resizing the viewport or the content
-    const resizeObserver = new ResizeObserver(() => {
-      this.#onResizeEvent();
-    });
-    resizeObserver.observe(this.viewport);
-    resizeObserver.observe(this.content);
-    for (let orientation of orientations) {
-      resizeObserver.observe(this.#elements[orientation].scrollbarTrack);
-    }
   }
 
   #onScrollWithTrack(orientation, event) {
+    const elements = this.#elements[orientation.key];
+    const cache = this.#cache[orientation.key];
+
     // When scrolling using the custom scrollbar's track, we need to use "fresh" bounding client rects to ensure correct results,
     // as the scrollbar's track & thumb may have their size and position changed without triggering the resize observer,
     // i.e: position after scrolling or size after CSS scale transform
-    const scrollbarTrackBoundingBox = this.#elements[orientation].scrollbarTrack.getBoundingClientRect();
-    const scrollbarThumbBoundingBox = this.#elements[orientation].scrollbarThumb.getBoundingClientRect();
-    const newScrollbarThumbPosition = event[clientCoordinates[orientation]] - scrollbarTrackBoundingBox[positions[orientation]] - scrollbarThumbBoundingBox[sizes[orientation]] / 2;
-    const scrollingRatios = this.#scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
-    const newViewportScollPosition = newScrollbarThumbPosition / this.#viewportToScrollbarRatios[orientation] * scrollingRatios;
+    const scrollbarTrackBoundingBox = elements.scrollbarTrack.getBoundingClientRect();
+    const scrollbarThumbBoundingBox = elements.scrollbarThumb.getBoundingClientRect();
+    const newScrollbarThumbPosition = event[orientation.clientCoordinate] - scrollbarTrackBoundingBox[orientation.position] - scrollbarThumbBoundingBox[orientation.size] / 2;
+    const scrollingRatio = cache.scrollbarTrackSize / scrollbarTrackBoundingBox[orientation.size];
+    const newViewportScollPosition = newScrollbarThumbPosition / cache.viewportToScrollbarRatio * scrollingRatio;
 
     // Request animation frame to end the event listener early as we don't need it anymore
     // This helps split the DOM reads & DOM writes to improve performance
     requestAnimationFrame(() => {
       this.viewport.scrollTo({
-        [positions[orientation]]: newViewportScollPosition,
+        [orientation.position]: newViewportScollPosition,
         behavior: 'smooth',
       });
 
       // Gives back the focus to the viewport after clicking the scrollbar's track,
       // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-      this.viewport.focus({preventScroll: true});
+      this.viewport.focus({ preventScroll: true });
     });
   }
 
   #onScrollWithThumbStart(orientation, event) {
+    const elements = this.#elements[orientation.key];
+    const scrollbarThumb = this.#scrollbarThumb[orientation.key];
+
     // When scrolling using the custom scrollbar's thumb, we need to use "fresh" bounding client rects to ensure correct results,
     // as the scrollbar's track may have its size and position changed without triggering the resize observer,
     // i.e: after CSS scale transform
-    const scrollbarTrackBoundingBox = this.#elements[orientation].scrollbarTrack.getBoundingClientRect();
-    this.#scrollingWithThumbRatios[orientation] = this.#scrollbarTrackSize[orientation] / scrollbarTrackBoundingBox[sizes[orientation]];
-    this.#scrollingWithThumbOrigin[pageCoordinates[orientation]] = event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]];
-    this.#scrollingWithThumbOrigin[scrollPositions[orientation]] = this.viewport[scrollPositions[orientation]];
-    this.#isScrollingWithThumb[orientation] = true;
+    const scrollbarTrackBoundingBox = elements.scrollbarTrack.getBoundingClientRect();
+    scrollbarThumb.isScrolling = true;
+    scrollbarThumb.scrollingRatio = this.#cache[orientation.key].scrollbarTrackSize / scrollbarTrackBoundingBox[orientation.size];
+    scrollbarThumb.scrollingOrigin.pageCoordinate = event.touches ? event.touches[0][orientation.pageCoordinate] : event[orientation.pageCoordinate];
+    scrollbarThumb.scrollingOrigin.scrollPosition = this.viewport[orientation.scrollPosition];
 
     // Request animation frame to end the event listener early as we don't need it anymore
     // This helps split the DOM reads & DOM writes to improve performance
     requestAnimationFrame(() => {
-      this.viewport.classList.add(`scrolling-with-${orientation}-thumb`);
-      this.#elements[orientation].scrollbar.classList.add('scrolling-with-thumb');
+      this.viewport.classList.add(`scrolling-with-${orientation.name}-thumb`);
+      elements.scrollbar.classList.add('scrolling-with-thumb');
 
       // Gives back the focus to the viewport after clicking the scrollbar's thumb,
       // so we can continue to scroll using the keyboard (arrows, page down, page up, ...)
-      this.viewport.focus({preventScroll: true});
+      this.viewport.focus({ preventScroll: true });
     });
   }
 
   #onScrollWithThumbMove(orientation, event) {
-    if (this.#isScrollingWithThumb[orientation]) {
-      const scrollbarThumbOffset = (event.touches ? event.touches[0][pageCoordinates[orientation]] : event[pageCoordinates[orientation]]) - this.#scrollingWithThumbOrigin[pageCoordinates[orientation]];
-      const viewportScrollOffset = scrollbarThumbOffset / this.#viewportToScrollbarRatios[orientation] * this.#scrollingWithThumbRatios[orientation];
-      const newViewportScrollPosition = this.#scrollingWithThumbOrigin[scrollPositions[orientation]] + viewportScrollOffset;
-      this.viewport[scrollPositions[orientation]] = newViewportScrollPosition;
+    const scrollbarThumb = this.#scrollbarThumb[orientation.key];
+    if (scrollbarThumb.isScrolling) {
+      const eventPageCoordinate = event.touches ? event.touches[0][orientation.pageCoordinate] : event[orientation.pageCoordinate];
+      const scrollbarThumbOffset = eventPageCoordinate - scrollbarThumb.scrollingOrigin.pageCoordinate;
+      const viewportScrollOffset = scrollbarThumbOffset / this.#cache[orientation.key].viewportToScrollbarRatio * scrollbarThumb.scrollingRatio;
+      const newViewportScrollPosition = scrollbarThumb.scrollingOrigin.scrollPosition + viewportScrollOffset;
+      this.viewport[orientation.scrollPosition] = newViewportScrollPosition;
     }
   }
 
   #onScrollWithThumbEnd(orientation) {
-    if (this.#isScrollingWithThumb[orientation]) {
-      this.#isScrollingWithThumb[orientation] = false;
-      this.viewport.classList.remove(`scrolling-with-${orientation}-thumb`);
-      this.#elements[orientation].scrollbar.classList.remove('scrolling-with-thumb');
+    const scrollbarThumb = this.#scrollbarThumb[orientation.key];
+    if (scrollbarThumb.isScrolling) {
+      scrollbarThumb.isScrolling = false;
+      this.viewport.classList.remove(`scrolling-with-${orientation.name}-thumb`);
+      this.#elements[orientation.key].scrollbar.classList.remove('scrolling-with-thumb');
     }
   }
 
@@ -232,24 +225,24 @@ export class ScrollableComponentElement extends HTMLElement {
   }
 
   #onScrollEvent() {
-    if (this.#animationFrame) {
+    if (this.#scrollingAnimationFrame !== null) {
       return;
     }
-    this.#animationFrame = requestAnimationFrame(() => {
+    this.#scrollingAnimationFrame = requestAnimationFrame(() => {
       this.#updateScrollPositions();
-      this.#animationFrame = null;
+      this.#scrollingAnimationFrame = null;
     });
   }
 
   #onResizeEvent() {
     this.#updateCache();
-    if (this.#animationFrame) {
+    if (this.#scrollingAnimationFrame !== null) {
       return;
     }
-    this.#animationFrame = requestAnimationFrame(() => {
+    this.#scrollingAnimationFrame = requestAnimationFrame(() => {
       this.#updateProperties();
       this.#updateScrollPositions();
-      this.#animationFrame = null;
+      this.#scrollingAnimationFrame = null;
     });
   }
 
@@ -264,10 +257,10 @@ export class ScrollableComponentElement extends HTMLElement {
       this.viewport.classList.toggle('scrollbar-visible', newValue === 'always');
     }
     else if (attributeName === 'vertical-scrollbar-position') {
-      this.#elements.vertical.scrollbar.classList.toggle('left-position', newValue === 'left');
+      this.#elements[vertical].scrollbar.classList.toggle('left-position', newValue === 'left');
     }
     else if (attributeName === 'horizontal-scrollbar-position') {
-      this.#elements.horizontal.scrollbar.classList.toggle('top-position', newValue === 'top');
+      this.#elements[horizontal].scrollbar.classList.toggle('top-position', newValue === 'top');
     }
   }
 
@@ -279,31 +272,35 @@ export class ScrollableComponentElement extends HTMLElement {
     // Caches as much as possible to avoid useless repaint/reflow
     const computedStyle = getComputedStyle(this.viewport);
     for (let orientation of orientations) {
-      this.#restrictContentSize[orientation] = computedStyle.getPropertyValue(overflows[orientation]).trim() === 'hidden';
-      this.#viewportSize[orientation] = Math.floor(this.viewport[offsetSizes[orientation]] * 10) / 10;
-      this.#scrollbarTrackSize[orientation] = Math.floor(this.#elements[orientation].scrollbarTrack[offsetSizes[orientation]] * 10) / 10;
-      this.#viewportToScrollbarRatios[orientation] = this.#scrollbarTrackSize[orientation] / this.viewport[scrollSizes[orientation]];
-      this.#isOverflowing[orientation] = !this.#restrictContentSize[orientation] && this.viewport[scrollSizes[orientation]] > Math.ceil(this.#viewportSize[orientation]);
+      const cache = this.#cache[orientation.key];
+      cache.restrictContentSize = computedStyle.getPropertyValue(orientation.cssOverflow).trim() === 'hidden';
+      cache.viewportSize = Math.floor(this.viewport[orientation.offsetSize] * 10) / 10;
+      cache.scrollbarTrackSize = Math.floor(this.#elements[orientation.key].scrollbarTrack[orientation.offsetSize] * 10) / 10;
+      cache.viewportToScrollbarRatio = cache.scrollbarTrackSize / this.viewport[orientation.scrollSize];
+      cache.isOverflowing = !cache.restrictContentSize && this.viewport[orientation.scrollSize] > Math.ceil(cache.viewportSize);
     }
   }
 
   #updateProperties() {
     for (let orientation of orientations) {
-      this.shadowRoot.host.style.setProperty(`--viewport-${sizes[orientation]}`, `${this.#viewportSize[orientation]}px`);
-      this.content.classList.toggle(`restrict-${sizes[orientation]}`, this.#restrictContentSize[orientation]);
-      this.#elements[orientation].scrollbar.classList.toggle('hidden', !this.#isOverflowing[orientation]);
-      if (this.#isOverflowing[orientation]) {
-        const newScrollbarThumbSize = this.#viewportSize[orientation] * this.#viewportToScrollbarRatios[orientation];
-        this.#elements[orientation].scrollbarThumb.style[sizes[orientation]] = `${newScrollbarThumbSize}px`;
+      const elements = this.#elements[orientation.key];
+      const cache = this.#cache[orientation.key];
+      this.shadowRoot.host.style.setProperty(`--viewport-${orientation.size}`, `${cache.viewportSize}px`);
+      this.content.classList.toggle(`restrict-${orientation.size}`, cache.restrictContentSize);
+      elements.scrollbar.classList.toggle('hidden', !cache.isOverflowing);
+      if (cache.isOverflowing) {
+        const newScrollbarThumbSize = cache.viewportSize * cache.viewportToScrollbarRatio;
+        elements.scrollbarThumb.style[orientation.size] = `${newScrollbarThumbSize}px`;
       }
     }
   }
 
   #updateScrollPositions() {
     for (let orientation of orientations) {
-      if (this.#isOverflowing[orientation]) {
-        const newScrollbarThumbPosition = this.viewport[scrollPositions[orientation]] * this.#viewportToScrollbarRatios[orientation];
-        this.#elements[orientation].scrollbarThumb.style.transform = orientation === 'vertical'
+      const cache = this.#cache[orientation.key];
+      if (cache.isOverflowing) {
+        const newScrollbarThumbPosition = this.viewport[orientation.scrollPosition] * cache.viewportToScrollbarRatio;
+        this.#elements[orientation.key].scrollbarThumb.style.transform = orientation.key === vertical
           ? `translate3D(0, ${newScrollbarThumbPosition}px, 0)`
           : `translate3D(${newScrollbarThumbPosition}px, 0, 0)`;
       }
