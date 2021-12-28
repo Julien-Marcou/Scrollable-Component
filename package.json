@@ -1,6 +1,6 @@
 {
   "name": "scrollable-component",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Native viewport with custom scrollbars 🖱️",
   "homepage": "https://scrollable.julien-marcou.fr/",
   "repository": {
