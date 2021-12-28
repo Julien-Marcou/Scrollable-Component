@@ -284,7 +284,7 @@ It's recommended to only use it sparingly, on small parts of your website (like 
 
 Scrollable Component uses the [Web Component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) specs to create a custom element which handles all the work for you and which can even be extended
 
-The native scrollbar is hidden using the CSS `scrollbar-width: none;` rule which is a powerful new feature still in a Working Draft status, but already supported by Firefox and that should come to Chromium-based browsers soon enough, which are for the moment falling back to the CSS `::-webkit-scrollbar { width: 0; }` rule
+The native scrollbar is hidden using the CSS `scrollbar-width: none;` rule which is a powerful new feature in the state of [Candidate Recommendation Snapshot](https://www.w3.org/TR/css-scrollbars-1/), but already supported by Firefox and that should come to Chromium-based & WebKit-based browsers soon enough, which are for the moment falling back to the CSS `::-webkit-scrollbar { width: 0; }` rule
 
 The custom scrollbar is redrawn when needed, to visually match where the native scrollbar would be placed
 
