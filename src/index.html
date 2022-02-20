@@ -1,15 +1,19 @@
-<div class="viewport" tabindex="-1">
-  <div class="content">
+<div class="content-wrapper">
+  <div class="content" part="content">
     <slot></slot>
   </div>
 </div>
-<div class="scrollbar vertical-scrollbar hidden">
-  <div class="scrollbar-track">
-    <div class="scrollbar-thumb"></div>
+<div class="scrollbar-wrapper horizontal-scrollbar-wrapper">
+  <div class="scrollbar horizontal-scrollbar hidden" part="scrollbar horizontal-scrollbar">
+    <div class="scrollbar-track" part="scrollbar-track horizontal-scrollbar-track">
+      <div class="scrollbar-thumb" part="scrollbar-thumb horizontal-scrollbar-thumb"></div>
+    </div>
   </div>
 </div>
-<div class="scrollbar horizontal-scrollbar hidden">
-  <div class="scrollbar-track">
-    <div class="scrollbar-thumb"></div>
+<div class="scrollbar-wrapper vertical-scrollbar-wrapper">
+  <div class="scrollbar vertical-scrollbar hidden" part="scrollbar vertical-scrollbar">
+    <div class="scrollbar-track" part="scrollbar-track vertical-scrollbar-track">
+      <div class="scrollbar-thumb" part="scrollbar-thumb vertical-scrollbar-thumb"></div>
+    </div>
   </div>
 </div>
