@@ -29,6 +29,6 @@
   "devDependencies": {
     "csso": "^5.0.2",
     "html-minifier-terser": "^6.1.0",
-    "terser": "^5.10.0"
+    "terser": "^5.11.0"
   }
 }
