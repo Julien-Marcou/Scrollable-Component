@@ -32,13 +32,6 @@ const orientations = [
 
 export class ScrollableComponentElement extends HTMLElement {
 
-  viewport;
-  content;
-  elements = {};
-  cache = {};
-  scrollbarThumb = {};
-  scrollingAnimationFrame = null;
-
   constructor() {
     super();
     this.initializeFields();
@@ -73,6 +66,12 @@ export class ScrollableComponentElement extends HTMLElement {
   }
 
   initializeFields() {
+    this.viewport;
+    this.content;
+    this.elements = {};
+    this.cache = {};
+    this.scrollbarThumb = {};
+    this.scrollingAnimationFrame = null;
     for (let orientation of orientations) {
       this.elements[orientation.key] = {
         scrollbar: null,
