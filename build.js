@@ -21,8 +21,8 @@ const jsOptions = {
     toplevel: true,
     properties: {
       reserved: [
-        'preventScroll',
         'connectedCallback',
+        'disconnectedCallback',
         'attributeChangedCallback',
         'observedAttributes',
       ],

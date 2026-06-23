@@ -39,6 +39,9 @@ export class ScrollableComponentElement extends HTMLElement {
   #scrollingAnimationFrame = null;
   #scrollbarOverlay = true;
   #edgeDetection = false;
+  #resizeObserver = new ResizeObserver((resizeEntries) => {
+    this.#onResizeEvent(resizeEntries);
+  });
 
   constructor() {
     super();
@@ -64,6 +67,10 @@ export class ScrollableComponentElement extends HTMLElement {
 
   connectedCallback() {
     this.#initializeEventListeners();
+  }
+
+  disconnectedCallback() {
+    this.#resizeObserver.disconnect();
   }
 
   #initializeFields() {
@@ -110,16 +117,13 @@ export class ScrollableComponentElement extends HTMLElement {
 
   #initializeEventListeners() {
     // Update entire scrollbar when resizing the viewport or the content
-    const resizeObserver = new ResizeObserver((resizeEntries) => {
-      this.#onResizeEvent(resizeEntries);
-    });
-    resizeObserver.observe(this.#host, { box: 'content-box' });
-    resizeObserver.observe(this.#contentWrapper, { box: 'border-box' });
+    this.#resizeObserver.observe(this.#host, { box: 'content-box' });
+    this.#resizeObserver.observe(this.#contentWrapper, { box: 'border-box' });
 
     for (let orientation of orientations) {
       // Update entire scrollbar when resizing the scrollbar's track
       const elements = this.#elements[orientation.key];
-      resizeObserver.observe(elements.scrollbarTrack, { box: 'content-box' });
+      this.#resizeObserver.observe(elements.scrollbarTrack, { box: 'content-box' });
 
       // Scroll to pointer position in scrollbar's track
       elements.scrollbarTrack.addEventListener('pointerdown', (event) => {
