@@ -27,8 +27,8 @@
   "type": "module",
   "license": "MIT",
   "devDependencies": {
-    "csso": "^5.0.2",
-    "html-minifier-terser": "^6.1.0",
-    "terser": "^5.10.0"
+    "csso": "^5.0.5",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.48.0"
   }
 }
