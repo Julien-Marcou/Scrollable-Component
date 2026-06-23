@@ -137,6 +137,9 @@
 }
 
 /* Scrollbar visibility */
+:host([scrollbar-visibility="never"]) .scrollbar-wrapper {
+  display: none;
+}
 :host([scrollbar-visibility="always"]) .scrollbar-wrapper {
   opacity: 1;
   transition: none;
