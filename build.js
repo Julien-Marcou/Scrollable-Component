@@ -17,6 +17,8 @@ const htmlOptions = {
   collapseWhitespace: true,
 };
 const jsOptions = {
+  module: true,
+  ecma: '2024',
   mangle: {
     toplevel: true,
     properties: {
@@ -25,6 +27,7 @@ const jsOptions = {
         'disconnectedCallback',
         'attributeChangedCallback',
         'observedAttributes',
+        'box',
       ],
     },
   },
