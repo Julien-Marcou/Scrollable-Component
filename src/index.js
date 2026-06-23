@@ -382,4 +382,16 @@ export class ScrollableComponentElement extends HTMLElement {
 
 }
 
-window.customElements.define('scrollable-component', ScrollableComponentElement);
+const defaultTag = 'scrollable-component';
+
+export function defineScrollableComponent(tag = defaultTag) {
+  window.customElements.define(tag, ScrollableComponentElement);
+}
+
+export function isScrollableComponentDefined(tag = defaultTag) {
+  return !!window.customElements.get(tag)
+}
+
+export function whenScrollableComponentDefined(tag = defaultTag) {
+  return window.customElements.whenDefined(tag)
+}
