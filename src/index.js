@@ -91,7 +91,7 @@ export class ScrollableComponentElement extends HTMLElement {
         maxScrollPosition: 0,
       };
       this.#scrollbarThumb[orientation.key] = {
-        isScrolling: true,
+        isScrolling: false,
         scrollingRatio: 1,
         scrollingOrigin: {
           pageCoordinate: 0,
@@ -132,10 +132,6 @@ export class ScrollableComponentElement extends HTMLElement {
         this.#onScrollWithTrack(orientation, event);
       });
 
-      // Scrolling with thumb
-      const onScrollWithThumbMove = (event) => {
-        this.#onScrollWithThumbMove(orientation, event);
-      };
 
       // Start of scrolling with thumb
       elements.scrollbarThumb.addEventListener('pointerdown', (event) => {
@@ -143,14 +139,17 @@ export class ScrollableComponentElement extends HTMLElement {
         event.preventDefault();
         // Stop the propagation so the event does not get triggered on the scrollbar's track
         event.stopPropagation();
-        elements.scrollbarThumb.addEventListener('pointermove', onScrollWithThumbMove, { passive: true });
         elements.scrollbarThumb.setPointerCapture(event.pointerId);
         this.#onScrollWithThumbStart(orientation, event);
       });
 
+      // Scrolling with thumb
+      elements.scrollbarThumb.addEventListener('pointermove', (event) => {
+        this.#onScrollWithThumbMove(orientation, event);
+      }, { passive: true });
+
       // End of scrolling with thumb
       elements.scrollbarThumb.addEventListener('pointerup', (event) => {
-        elements.scrollbarThumb.removeEventListener('pointermove', onScrollWithThumbMove, { passive: true });
         elements.scrollbarThumb.releasePointerCapture(event.pointerId);
         this.#onScrollWithThumbEnd(orientation);
       }, { passive: true });
@@ -198,6 +197,9 @@ export class ScrollableComponentElement extends HTMLElement {
   #onScrollWithThumbStart(orientation, event) {
     const elements = this.#elements[orientation.key];
     const scrollbarThumb = this.#scrollbarThumb[orientation.key];
+    if (scrollbarThumb.isScrolling) {
+      return;
+    }
 
     // When scrolling using the custom scrollbar's thumb, we need to use "fresh" bounding client rects to ensure correct results,
     // as the scrollbar's track may have its size and position changed without triggering the resize observer,
@@ -218,24 +220,29 @@ export class ScrollableComponentElement extends HTMLElement {
 
   #onScrollWithThumbMove(orientation, event) {
     const scrollbarThumb = this.#scrollbarThumb[orientation.key];
-    if (scrollbarThumb.isScrolling) {
-      const cache = this.#cache[orientation.key];
-      const eventPageCoordinate = event.touches ? event.touches[0][orientation.pageCoordinate] : event[orientation.pageCoordinate];
-      const scrollbarThumbOffset = eventPageCoordinate - scrollbarThumb.scrollingOrigin.pageCoordinate;
-      const viewportScrollOffset = scrollbarThumbOffset / cache.viewportToScrollbarRatio * scrollbarThumb.scrollingRatio;
-      const newViewportScrollPosition = scrollbarThumb.scrollingOrigin.scrollPosition + viewportScrollOffset;
-      // Constrain the new scroll position so that you don't get out of the viewport
-      this.#host[orientation.scrollPosition] = newViewportScrollPosition;
+    if (!scrollbarThumb.isScrolling) {
+      return;
     }
+
+    const cache = this.#cache[orientation.key];
+    const eventPageCoordinate = event.touches ? event.touches[0][orientation.pageCoordinate] : event[orientation.pageCoordinate];
+    const scrollbarThumbOffset = eventPageCoordinate - scrollbarThumb.scrollingOrigin.pageCoordinate;
+    const viewportScrollOffset = scrollbarThumbOffset / cache.viewportToScrollbarRatio * scrollbarThumb.scrollingRatio;
+    const newViewportScrollPosition = scrollbarThumb.scrollingOrigin.scrollPosition + viewportScrollOffset;
+
+    // Constrain the new scroll position so that you don't get out of the viewport
+    this.#host[orientation.scrollPosition] = newViewportScrollPosition;
   }
 
   #onScrollWithThumbEnd(orientation) {
     const scrollbarThumb = this.#scrollbarThumb[orientation.key];
-    if (scrollbarThumb.isScrolling) {
-      scrollbarThumb.isScrolling = false;
-      this.#elements[orientation.key].scrollbarThumb.part.remove('active');
-      this.#elements[orientation.key].scrollbarThumb.classList.remove('active');
+    if (!scrollbarThumb.isScrolling) {
+      return;
     }
+
+    scrollbarThumb.isScrolling = false;
+    this.#elements[orientation.key].scrollbarThumb.part.remove('active');
+    this.#elements[orientation.key].scrollbarThumb.classList.remove('active');
   }
 
   #onTouchStart() {
