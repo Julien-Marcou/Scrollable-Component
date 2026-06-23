@@ -144,6 +144,25 @@
   opacity: 1;
   transition: none;
 }
+:host([scrollbar-visibility="trackbar"]) .scrollbar-wrapper {
+  opacity: 1;
+  transition: none;
+}
+:host([scrollbar-visibility="trackbar"]) .scrollbar-thumb {
+  opacity: 0;
+  transition:
+    opacity var(--fade-out-transition-duration) ease-in-out var(--fade-out-transition-delay),
+    background-color var(--fill-color-transition-duration) ease-out;
+}
+.scrollbar-wrapper:hover .scrollbar-thumb,
+:host(:hover) .scrollbar-thumb,
+:host(:focus-within) .scrollbar-thumb,
+:host(.touch) .scrollbar-thumb {
+  opacity: 1;
+  transition:
+    opacity var(--fade-in-transition-duration) ease-in-out 0s,
+    background-color var(--fill-color-transition-duration) ease-out;
+}
 
 /* Vertical scrollbar position */
 :host([vertical-scrollbar-position="left"]) .right-scrollbar {
