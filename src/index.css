@@ -116,11 +116,11 @@
 
 /* Scrollbar's thumb */
 .scrollbar-thumb {
-  height: 100%;
-  width: 100%;
+  height: var(--height, 100%);
+  width: var(--width, 100%);
   background-color: var(--scrollbar-thumb-fill-color);
   border-radius: var(--scrollbar-width);
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0);
   transition: background-color var(--fill-color-transition-duration) ease-out;
 }
 .scrollbar-thumb:hover {

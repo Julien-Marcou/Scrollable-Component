@@ -7,6 +7,7 @@ const orientations = [
   {
     key: vertical,
     name: 'vertical',
+    axis: 'y',
     size: 'height',
     position: 'top',
     oppositePosition: 'bottom',
@@ -18,6 +19,7 @@ const orientations = [
   {
     key: horizontal,
     name: 'horizontal',
+    axis: 'x',
     size: 'width',
     position: 'left',
     oppositePosition: 'right',
@@ -335,7 +337,7 @@ export class ScrollableComponentElement extends HTMLElement {
       elements.scrollbar.classList.toggle('hidden', !cache.isOverflowing);
       if (cache.isOverflowing) {
         const newScrollbarThumbSize = cache.viewportSize * cache.viewportToScrollbarRatio;
-        elements.scrollbarThumb.style[orientation.size] = `${newScrollbarThumbSize}px`;
+        elements.scrollbarThumb.style.setProperty(`--${orientation.size}`, `${newScrollbarThumbSize}px`);
 
         // Constrain the scroll position so that you don't get out of the viewport after it has been decreased
         const constrainedScrollPosition = Math.max(0, Math.min(cache.scrollPosition, cache.maxScrollPosition));
@@ -357,9 +359,7 @@ export class ScrollableComponentElement extends HTMLElement {
 
         // Scrollbar properties
         const newScrollbarThumbPosition = cache.scrollPosition * cache.viewportToScrollbarRatio;
-        this.#elements[orientation.key].scrollbarThumb.style.transform = orientation.key === vertical
-          ? `translate3D(0, ${newScrollbarThumbPosition}px, 0)`
-          : `translate3D(${newScrollbarThumbPosition}px, 0, 0)`;
+        this.#elements[orientation.key].scrollbarThumb.style.setProperty(`--translate-${orientation.axis}`, `${newScrollbarThumbPosition}px`);
       }
     }
   }
