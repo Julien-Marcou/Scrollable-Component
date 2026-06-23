@@ -81,15 +81,21 @@
 }
 .vertical-scrollbar {
   top: 0;
-  left: calc(var(--viewport-width) - var(--scrollbar-width));
+  left: 0;
   width: var(--scrollbar-width);
   height: var(--viewport-height);
 }
 .horizontal-scrollbar {
-  top: calc(var(--viewport-height) - var(--scrollbar-width));
+  top: 0;
   left: 0;
   height: var(--scrollbar-width);
   width: var(--viewport-width);
+}
+.right-scrollbar {
+  left: calc(var(--viewport-width) - var(--scrollbar-width));
+}
+.bottom-scrollbar {
+  top: calc(var(--viewport-height) - var(--scrollbar-width));
 }
 .scrollbar-wrapper:hover,
 :host(:hover) .scrollbar-wrapper,
@@ -137,13 +143,21 @@
 }
 
 /* Vertical scrollbar position */
-:host([vertical-scrollbar-position="left"]) .vertical-scrollbar {
-  left: 0;
+:host([vertical-scrollbar-position="left"]) .right-scrollbar {
+  display: none;
+}
+:host(:not([vertical-scrollbar-position])) .left-scrollbar,
+:host([vertical-scrollbar-position="right"]) .left-scrollbar {
+  display: none;
 }
 
 /* Horizontal scrollbar position */
-:host([horizontal-scrollbar-position="top"]) .horizontal-scrollbar {
-  top: 0;
+:host([horizontal-scrollbar-position="top"]) .bottom-scrollbar {
+  display: none;
+}
+:host(:not([horizontal-scrollbar-position])) .top-scrollbar,
+:host([horizontal-scrollbar-position="bottom"]) .top-scrollbar {
+  display: none;
 }
 
 /* Scrollbar overlay */
@@ -159,5 +173,13 @@
   padding-top: var(--scrollbar-width);
 }
 :host([scrollbar-overlay="false"][vertical-scrollbar-position="left"].vertical-overflow) .content-wrapper {
+  padding-left: var(--scrollbar-width);
+}
+:host([scrollbar-overlay="false"][horizontal-scrollbar-position="both"].horizontal-overflow) .content-wrapper {
+  padding-bottom: var(--scrollbar-width);
+  padding-top: var(--scrollbar-width);
+}
+:host([scrollbar-overlay="false"][vertical-scrollbar-position="both"].vertical-overflow) .content-wrapper {
+  padding-right: var(--scrollbar-width);
   padding-left: var(--scrollbar-width);
 }
