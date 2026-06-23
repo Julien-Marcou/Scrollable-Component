@@ -99,10 +99,10 @@ export class ScrollableComponentElement extends HTMLElement {
     this.shadowRoot.appendChild(scrollableComponentTemplate.content.cloneNode(true));
     this.#host = this.shadowRoot.host;
     this.#contentWrapper = this.shadowRoot.querySelector('.content-wrapper');
+    const scrollbarWrapper = this.shadowRoot.querySelector('.scrollbar-wrapper');
     for (let orientation of orientations) {
       const elements = this.#elements[orientation.key];
-      const scrollbarWrapper = this.shadowRoot.querySelector(`.${orientation.name}-scrollbar-wrapper`);
-      elements.scrollbar = scrollbarWrapper.firstElementChild;
+      elements.scrollbar = scrollbarWrapper.querySelector(`.${orientation.name}-scrollbar`);
       elements.scrollbarTrack = elements.scrollbar.firstElementChild;
       elements.scrollbarThumb = elements.scrollbarTrack.firstElementChild;
     }

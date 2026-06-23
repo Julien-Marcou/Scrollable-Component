@@ -23,14 +23,9 @@
   --fade-out-transition-delay: 300ms;
   --fill-color-transition-duration: 150ms;
 
-  --content-column-width: 1fr;
-  --content-row-height: 1fr;
-
   contain: content;
-  display: grid !important;
-  padding: 0 !important;
-  grid-template-columns: var(--content-column-width) 0;
-  grid-template-rows: var(--content-row-height) 0;
+  display: block;
+  padding: 0;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -39,24 +34,23 @@
   height: 0;
 }
 :host([hidden]) {
-  display: none !important;
-}
-:host(.overflow-x-hidden) {
-  --content-column-width: 100%;
-}
-:host(.overflow-y-hidden) {
-  --content-row-height: 100%;
+  display: none;
 }
 
 /* Content */
 .content-wrapper {
   z-index: var(--content-z-index);
-  display: flex;
-  flex-direction: column;
-  grid-area: 1 / 1;
+  min-width: min-content;
+  min-height: min-content;
+}
+:host(.overflow-x-hidden) .content-wrapper {
+  min-width: auto;
+}
+:host(.overflow-y-hidden) .content-wrapper {
+  min-height: auto;
 }
 .content {
-  flex-grow: 1;
+  z-index: var(--content-z-index);
   padding: var(--content-padding);
 }
 
@@ -64,23 +58,12 @@
 .scrollbar-wrapper {
   z-index: var(--scrollbar-z-index);
   position: sticky;
-}
-.scrollbar-wrapper:hover {
-  z-index: var(--scrollbar-z-index-hover);
-}
-.vertical-scrollbar-wrapper {
-  grid-area: 1 / 2;
   top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-}
-.horizontal-scrollbar-wrapper {
-  grid-area: 2 / 1;
-  bottom: 0;
   left: 0;
+  opacity: 0;
   width: 0;
   height: 0;
+  transition: opacity var(--fade-out-transition-duration) ease-in-out var(--fade-out-transition-delay);
 }
 
 /* Scrollbar */
@@ -89,29 +72,31 @@
   user-select: none;
   touch-action: none;
   position: absolute;
-  opacity: 0;
   padding: var(--scrollbar-padding);
   transform: translate3d(0, 0, 0);
-  transition: opacity var(--fade-out-transition-duration) ease-in-out var(--fade-out-transition-delay), background-color var(--fill-color-transition-duration) ease-out;
+  transition: background-color var(--fill-color-transition-duration) ease-out;
+}
+.scrollbar:hover {
+  z-index: var(--scrollbar-z-index-hover);
 }
 .vertical-scrollbar {
   top: 0;
-  right: 0;
+  left: calc(var(--viewport-width) - var(--scrollbar-width));
   width: var(--scrollbar-width);
   height: var(--viewport-height);
 }
 .horizontal-scrollbar {
-  bottom: 0;
+  top: calc(var(--viewport-height) - var(--scrollbar-width));
   left: 0;
   height: var(--scrollbar-width);
   width: var(--viewport-width);
 }
-.scrollbar:hover,
-:host(:hover) .scrollbar,
-:host(:focus-within) .scrollbar,
-:host(.touch) .scrollbar {
+.scrollbar-wrapper:hover,
+:host(:hover) .scrollbar-wrapper,
+:host(:focus-within) .scrollbar-wrapper,
+:host(.touch) .scrollbar-wrapper {
   opacity: 1;
-  transition: opacity var(--fade-in-transition-duration) ease-in-out 0s, background-color var(--fill-color-transition-duration) ease-out;
+  transition: opacity var(--fade-in-transition-duration) ease-in-out 0s;
 }
 .scrollbar.hidden {
   display: none;
@@ -146,59 +131,33 @@
 }
 
 /* Scrollbar visibility */
-:host([scrollbar-visibility="always"]) .scrollbar {
+:host([scrollbar-visibility="always"]) .scrollbar-wrapper {
   opacity: 1;
   transition: none;
 }
 
 /* Vertical scrollbar position */
-:host([vertical-scrollbar-position="left"]) {
-  grid-template-columns: 0 var(--content-column-width);
-}
-:host([vertical-scrollbar-position="left"]) .content-wrapper,
-:host([vertical-scrollbar-position="left"]) .horizontal-scrollbar-wrapper {
-  grid-column: 2;
-}
-:host([vertical-scrollbar-position="left"]) .vertical-scrollbar-wrapper {
-  grid-column: 1;
-  left: 0;
-  right: initial;
-}
 :host([vertical-scrollbar-position="left"]) .vertical-scrollbar {
   left: 0;
-  right: initial;
 }
 
 /* Horizontal scrollbar position */
-:host([horizontal-scrollbar-position="top"]) {
-  grid-template-rows: 0 var(--content-row-height);
-}
-:host([horizontal-scrollbar-position="top"]) .content-wrapper,
-:host([horizontal-scrollbar-position="top"]) .vertical-scrollbar-wrapper {
-  grid-row: 2;
-}
-:host([horizontal-scrollbar-position="top"]) .horizontal-scrollbar-wrapper {
-  grid-row: 1;
-  top: 0;
-  bottom: initial;
-}
 :host([horizontal-scrollbar-position="top"]) .horizontal-scrollbar {
   top: 0;
-  bottom: initial;
 }
 
 /* Scrollbar overlay */
-:host([scrollbar-overlay="false"].horizontal-overflow) .content {
-  margin-bottom: var(--scrollbar-width);
+:host([scrollbar-overlay="false"]:not([horizontal-scrollbar-position]).horizontal-overflow) .content-wrapper,
+:host([scrollbar-overlay="false"][horizontal-scrollbar-position="bottom"].horizontal-overflow) .content-wrapper {
+  padding-bottom: var(--scrollbar-width);
 }
-:host([scrollbar-overlay="false"].vertical-overflow) .content {
-  margin-right: var(--scrollbar-width);
+:host([scrollbar-overlay="false"]:not([vertical-scrollbar-position]).vertical-overflow) .content-wrapper,
+:host([scrollbar-overlay="false"][vertical-scrollbar-position="bottom"].vertical-overflow) .content-wrapper {
+  padding-right: var(--scrollbar-width);
 }
-:host([scrollbar-overlay="false"][horizontal-scrollbar-position="top"].horizontal-overflow) .content {
-  margin-top: var(--scrollbar-width);
-  margin-bottom: 0;
+:host([scrollbar-overlay="false"][horizontal-scrollbar-position="top"].horizontal-overflow) .content-wrapper {
+  padding-top: var(--scrollbar-width);
 }
-:host([scrollbar-overlay="false"][vertical-scrollbar-position="left"].vertical-overflow) .content {
-  margin-left: var(--scrollbar-width);
-  margin-right: 0;
+:host([scrollbar-overlay="false"][vertical-scrollbar-position="left"].vertical-overflow) .content-wrapper {
+  padding-left: var(--scrollbar-width);
 }
