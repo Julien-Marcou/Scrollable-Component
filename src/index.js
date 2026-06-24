@@ -256,11 +256,11 @@ export class ScrollableComponentElement extends HTMLElement {
   }
 
   #onTouchStart() {
-    this.#host.classList.add('touch');
+    this.#host.setAttribute('touched');
   }
 
   #onTouchEnd() {
-    this.#host.classList.remove('touch');
+    this.#host.removeAttribute('touched');
   }
 
   #onScrollEvent() {
@@ -336,8 +336,8 @@ export class ScrollableComponentElement extends HTMLElement {
     for (let orientation of orientations) {
       const viewportCache = this.#viewportCache[orientation.key];
       this.#host.style.setProperty(`--viewport-${orientation.size}`, `${viewportCache.size}px`);
-      this.#host.classList.toggle(`${orientation.cssOverflow}-hidden`, viewportCache.overflowHidden);
-      this.#host.classList.toggle(`${orientation.key}-overflow`, !this.#scrollbarOverlay && viewportCache.isOverflowing);
+      this.#host.toggleAttribute(`${orientation.cssOverflow}-hidden`, viewportCache.overflowHidden);
+      this.#host.toggleAttribute(`${orientation.key}-overflow`, !this.#scrollbarOverlay && viewportCache.isOverflowing);
 
       // Constrain the scroll position so that you don't get out of the viewport after it has been decreased
       const constrainedScrollPosition = Math.max(0, Math.min(viewportCache.scrollPosition, viewportCache.maxScrollPosition));
@@ -365,9 +365,8 @@ export class ScrollableComponentElement extends HTMLElement {
     for (let orientation of orientations) {
       const viewportCache = this.#viewportCache[orientation.key];
       if (viewportCache.isOverflowing) {
-        this.#host.classList.toggle(`${orientation.position}-overflow`, this.#edgeDetection && viewportCache.scrollPosition > 1);
-        this.#host.classList.toggle(`${orientation.oppositePosition}-overflow`, this.#edgeDetection && (viewportCache.maxScrollPosition - viewportCache.scrollPosition) > 1);
-
+        this.#host.toggleAttribute(`${orientation.position}-overflow`, this.#edgeDetection && viewportCache.scrollPosition > 1);
+        this.#host.toggleAttribute(`${orientation.oppositePosition}-overflow`, this.#edgeDetection && (viewportCache.maxScrollPosition - viewportCache.scrollPosition) > 1);
       }
     }
 
