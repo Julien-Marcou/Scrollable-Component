@@ -83,7 +83,6 @@ export class ScrollableComponentElement extends HTMLElement {
   #initializeFields() {
     for (let orientation of orientations) {
       this.#viewportCache[orientation.key] = {
-        isScrolling: false,
         isOverflowing: false,
         overflowHidden: false,
         size: 0,
@@ -93,6 +92,7 @@ export class ScrollableComponentElement extends HTMLElement {
         scrollOrigin: {
           pageCoordinate: 0,
           scrollPosition: 0,
+          pointerId: null,
         },
       };
     }
@@ -147,7 +147,6 @@ export class ScrollableComponentElement extends HTMLElement {
         event.preventDefault();
         // Stop the propagation so the event does not get triggered on the scrollbar's track
         event.stopPropagation();
-        elements.scrollbarThumb.setPointerCapture(event.pointerId);
         this.#onScrollWithThumbStart(scrollbar, event);
       });
 
@@ -158,8 +157,7 @@ export class ScrollableComponentElement extends HTMLElement {
 
       // End of scrolling with thumb
       elements.scrollbarThumb.addEventListener('pointerup', (event) => {
-        elements.scrollbarThumb.releasePointerCapture(event.pointerId);
-        this.#onScrollWithThumbEnd(scrollbar);
+        this.#onScrollWithThumbEnd(scrollbar, event);
       }, { passive: true });
     }
 
@@ -180,6 +178,11 @@ export class ScrollableComponentElement extends HTMLElement {
   }
 
   #onScrollWithTrack(scrollbar, event) {
+    const viewportCache = this.#viewportCache[scrollbar.orientation.key];
+    if (viewportCache.scrollOrigin.pointerId !== null) {
+      return;
+    }
+
     const scrollbarCache = this.#scrollbarCache[scrollbar.key];
     const elements = this.#elements[scrollbar.key];
 
@@ -204,12 +207,13 @@ export class ScrollableComponentElement extends HTMLElement {
 
   #onScrollWithThumbStart(scrollbar, event) {
     const viewportCache = this.#viewportCache[scrollbar.orientation.key];
-    if (viewportCache.isScrolling) {
+    if (viewportCache.scrollOrigin.pointerId !== null) {
       return;
     }
 
     const scrollbarCache = this.#scrollbarCache[scrollbar.key];
     const elements = this.#elements[scrollbar.key];
+    elements.scrollbarThumb.setPointerCapture(event.pointerId);
 
     // When scrolling using the custom scrollbar's thumb, we need to use "fresh" bounding client rects to ensure correct results,
     // as the scrollbar's track may have its size and position changed without triggering the resize observer,
@@ -217,7 +221,7 @@ export class ScrollableComponentElement extends HTMLElement {
     const scrollbarTrackBoundingBox = elements.scrollbarTrack.getBoundingClientRect();
     scrollbarCache.scrollingRatio = scrollbarCache.trackSize / scrollbarTrackBoundingBox[scrollbar.orientation.size];
 
-    viewportCache.isScrolling = true;
+    viewportCache.scrollOrigin.pointerId = event.pointerId;
     viewportCache.scrollOrigin.pageCoordinate = event.touches ? event.touches[0][scrollbar.orientation.pageCoordinate] : event[scrollbar.orientation.pageCoordinate];
     viewportCache.scrollOrigin.scrollPosition = this.#host[scrollbar.orientation.scrollPosition];
 
@@ -231,7 +235,7 @@ export class ScrollableComponentElement extends HTMLElement {
 
   #onScrollWithThumbMove(scrollbar, event) {
     const viewportCache = this.#viewportCache[scrollbar.orientation.key];
-    if (!viewportCache.isScrolling) {
+    if (viewportCache.scrollOrigin.pointerId !== event.pointerId) {
       return;
     }
 
@@ -245,16 +249,17 @@ export class ScrollableComponentElement extends HTMLElement {
     this.#host[scrollbar.orientation.scrollPosition] = newViewportScrollPosition;
   }
 
-  #onScrollWithThumbEnd(scrollbar) {
+  #onScrollWithThumbEnd(scrollbar, event) {
     const viewportCache = this.#viewportCache[scrollbar.orientation.key];
-    if (!viewportCache.isScrolling) {
+    if (viewportCache.scrollOrigin.pointerId !== event.pointerId) {
       return;
     }
 
-    viewportCache.isScrolling = false;
     const elements = this.#elements[scrollbar.key];
     elements.scrollbarThumb.part.remove('active');
     elements.scrollbarThumb.classList.remove('active');
+    elements.scrollbarThumb.releasePointerCapture(event.pointerId);
+    viewportCache.scrollOrigin.pointerId = null;
   }
 
   #onTouchStart() {
