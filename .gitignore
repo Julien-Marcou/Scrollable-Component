@@ -4,6 +4,9 @@
 # Generated file
 /index.js
 
+# Tests
+.vitest-attachments
+
 # IDEs and editors
 .vscode
 

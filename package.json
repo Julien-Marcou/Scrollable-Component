@@ -21,14 +21,17 @@
   ],
   "scripts": {
     "build": "node build.js",
-    "debug": "node build.js --debug"
+    "debug": "node build.js --debug",
+    "test": "npm run build && vitest"
   },
   "main": "index.js",
   "type": "module",
   "license": "MIT",
   "devDependencies": {
+    "@vitest/browser-playwright": "^4.1.9",
     "csso": "^5.0.5",
     "html-minifier-terser": "^7.2.0",
-    "terser": "^5.48.0"
+    "terser": "^5.48.0",
+    "vitest": "^4.1.9"
   }
 }
