@@ -263,7 +263,7 @@ export class ScrollableComponentElement extends HTMLElement {
   }
 
   #onTouchStart() {
-    this.#host.setAttribute('touched');
+    this.#host.setAttribute('touched', '');
   }
 
   #onTouchEnd() {
