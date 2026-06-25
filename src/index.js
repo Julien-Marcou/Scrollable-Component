@@ -64,9 +64,11 @@ export class ScrollableComponentElement extends HTMLElement {
   attributeChangedCallback(attributeName, oldValue, newValue) {
     if (attributeName === 'scrollbar-overlay') {
       this.#scrollbarOverlay = newValue !== 'false';
+      this.#update();
     }
     else if (attributeName === 'edge-detection') {
       this.#edgeDetection = newValue === 'true';
+      this.#update();
     }
   }
 
