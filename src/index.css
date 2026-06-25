@@ -25,7 +25,7 @@
 
   contain: content;
   display: block;
-  padding: 0;
+  padding: 0 !important;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -72,6 +72,8 @@
   user-select: none;
   touch-action: none;
   position: absolute;
+  top: 0;
+  left: 0;
   padding: var(--scrollbar-padding);
   transform: translate3d(0, 0, 0);
   transition: background-color var(--fill-color-transition-duration) ease-out;
@@ -80,14 +82,10 @@
   z-index: var(--scrollbar-z-index-hover);
 }
 .vertical-scrollbar {
-  top: 0;
-  left: 0;
   width: var(--scrollbar-width);
   height: var(--viewport-height);
 }
 .horizontal-scrollbar {
-  top: 0;
-  left: 0;
   height: var(--scrollbar-width);
   width: var(--viewport-width);
 }
