@@ -331,7 +331,8 @@ If you need more control over the look of each part of the scrollbars, you can u
 
 Scrollable Component exposes the following part selectors:
 
-- `content` to target the container of the viewport's content
+- `content` to target the viewport's content
+- `content-wrapper` to target the wrapper around the viewport's content
 - `scrollbar` to target the container of each scrollbar
 - `scrollbar-track` to target the track of each scrollbar
 - `scrollbar-thumb` to target the thumb of each scrollbar
