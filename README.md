@@ -180,7 +180,6 @@ Supported values for `horizontal-scrollbar-position` are:
 - `top`: horizontal scrollbar is shown at the top
 - `both`: horizontal scrollbar is shown both at the top & bottom
 
-
 ```html
 <scrollable-component
   vertical-scrollbar-position="left"
@@ -259,11 +258,11 @@ scrollable-component[top-overflow][bottom-overflow] {
 
 ### Custom HTML tag
 
-If you don't like the default `<scrollable-component>` tag, you can override it by adding the tag of your choice when calling the `defineScrollableComponent()` function:
+If you don't like the default `<scrollable-component>` tag, you can override it by calling `window.customElements.define()` instead of calling `defineScrollableComponent()`:
 
 ```javascript
-import { defineScrollableComponent } from 'scrollable-component';
-defineScrollableComponent('my-custom-tag');
+import { ScrollableComponentElement } from 'scrollable-component';
+window.customElements.define('my-custom-tag, ScrollableComponentElement);
 ```
 
 And then use it like this:
@@ -273,12 +272,6 @@ And then use it like this:
   <!-- Your content -->
 </my-custom-tag>
 ```
-
-For more advanced use cases, the `defineScrollableComponent(tag?: string)` function comes along with:
-
-- `isScrollableComponentDefined(tag?: string)` which returns `true` when the component is already defined
-- `whenScrollableComponentDefined(tag?: string)` which returns a `Promise` that resolves once the component has been defined
-
 
 
 ## Customized appearance
