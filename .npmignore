@@ -1,3 +1,6 @@
 /src
-/build.js
+/tests
+build.js
+vitest.config.js
+.vitest-attachments
 .editorconfig
