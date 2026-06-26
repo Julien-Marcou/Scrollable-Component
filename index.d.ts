@@ -1,5 +1,8 @@
-export class ScrollableComponentElement extends HTMLElement {
-}
+export class ScrollableComponentElement extends HTMLElement {}
+
+export function defineScrollableComponent(): void;
+export function isScrollableComponentDefined(): void;
+export function whenScrollableComponentDefined(): Promise<CustomElementConstructor>;
 
 declare global {
   interface HTMLElementTagNameMap {
