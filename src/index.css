@@ -14,9 +14,7 @@
 
   --content-padding: 0;
 
-  --content-z-index: 0;
   --scrollbar-z-index: 10;
-  --scrollbar-z-index-hover: 20;
 
   --fade-in-transition-duration: 150ms;
   --fade-out-transition-duration: 800ms;
@@ -39,7 +37,6 @@
 
 /* Content */
 .content-wrapper {
-  z-index: var(--content-z-index);
   min-width: min-content;
   min-height: min-content;
 }
@@ -50,7 +47,6 @@
   min-height: auto;
 }
 .content {
-  z-index: var(--content-z-index);
   padding: var(--content-padding);
 }
 
@@ -79,7 +75,7 @@
   transition: background-color var(--fill-color-transition-duration) ease-out;
 }
 .scrollbar:hover {
-  z-index: var(--scrollbar-z-index-hover);
+  z-index: 1;
 }
 .vertical-scrollbar {
   width: var(--scrollbar-width);
