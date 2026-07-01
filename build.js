@@ -1,59 +1,40 @@
+import { build } from 'esbuild';
 import { minify as minifyCSS } from 'csso';
 import { minify as minifyHTML } from 'html-minifier-terser';
-import { minify as minifyJS } from 'terser';
-import { readFileSync, writeFileSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync } from 'fs';
 
-const cssInputFilename = 'src/index.css';
-const htmlInputFilename = 'src/index.html';
-const jsInputFilename = 'src/index.js';
 const outputFilename = 'index.js';
+const jsSource = readFileSync('src/index.js').toString();
+const cssSource = readFileSync('src/index.css').toString();
+const htmlSource = readFileSync('src/index.html').toString();
 const cssToken = '{{COMPONENT_CSS}}';
 const htmlToken = '{{COMPONENT_HTML}}';
 
-const cssOptions = {
-  restructure: false,
-};
-const htmlOptions = {
-  collapseWhitespace: true,
-};
-const jsOptions = {
-  module: true,
-  ecma: '2024',
-  mangle: {
-    toplevel: true,
-    properties: {
-      reserved: [
-        'connectedCallback',
-        'disconnectedCallback',
-        'attributeChangedCallback',
-        'observedAttributes',
-        'box',
-      ],
-    },
-  },
-};
-
-const cssSource = readFileSync(cssInputFilename).toString();
-const htmlSource = readFileSync(htmlInputFilename).toString();
-const jsSource = readFileSync(jsInputFilename).toString();
-
 const debug = process.argv[2] === '--debug';
 
-if (debug) {
-  writeFileSync(outputFilename, jsSource.replace(cssToken, cssSource).replace(htmlToken, htmlSource));
-}
-else {
-  const minifiedCSS = minifyCSS(
-    cssSource,
-    cssOptions,
-  ).css;
-  const minifiedHTML = await minifyHTML(
-    htmlSource,
-    htmlOptions,
-  );
-  const minifiedJS = await minifyJS(
-    jsSource.replace(cssToken, minifiedCSS).replace(htmlToken, minifiedHTML),
-    jsOptions,
-  );
-  writeFileSync(outputFilename, minifiedJS.code);
-}
+let jsReadyForBundle = jsSource;
+
+// CSS minification
+const minifiedCss = debug ? cssSource : minifyCSS(cssSource, { restructure: false, }).css;
+jsReadyForBundle = jsReadyForBundle.replace(cssToken, minifiedCss);
+
+// HTML minification
+const minifiedHtml = debug ? htmlSource : await minifyHTML(htmlSource, { collapseWhitespace: true });
+jsReadyForBundle = jsReadyForBundle.replace(htmlToken, minifiedHtml);
+
+// JS minification
+const bundledJs = await build({
+  stdin: {
+    contents: jsReadyForBundle,
+    resolveDir: './src',
+  },
+  format: 'esm',
+  platform: 'browser',
+  target: 'es2024',
+  bundle: true,
+  minify: !debug,
+  write: false,
+  outdir: './dist',
+});
+
+writeFileSync(outputFilename, bundledJs.outputFiles[0].text);
