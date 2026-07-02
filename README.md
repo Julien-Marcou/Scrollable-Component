@@ -35,6 +35,7 @@ Scrollable Component is a custom element (Web Component) designed to provide cus
 - [Why use Scrollable Component?](#why-use-scrollable-component)
   - [Perks](#perks)
   - [Quirks](#quirks)
+- [Browser compatibility](#browser-compatibility)
 - [How it works](#how-it-works)
 
 
@@ -57,7 +58,6 @@ npm install scrollable-component
 ## Usage
 
 This NPM package is ESM-only, so the easiest way to use it is with a bundler (e.g. webpack, esbuild, ...), which means you don't have to worry about how to make it available and import it.
-
 
 ### With a bundler
 
@@ -407,21 +407,6 @@ Each `scrollable-component` is defining its own `--viewport-width` & `--viewport
 ```
 
 
-## Browser compatibility
-
-Every modern browsers that supports the following features:
-- [shadow dom](https://caniuse.com/shadowdomv1)
-- [custom elements](https://caniuse.com/wf-autonomous-custom-elements)
-- [javascript resize observer](https://caniuse.com/resizeobserver)
-- [javascript private class fields](https://caniuse.com/mdn-javascript_classes_private_class_fields)
-- [css sticky position](https://caniuse.com/css-sticky)
-- [css scrollbar width](https://caniuse.com/wf-scrollbar-width)
-- [css custom properties](https://caniuse.com/css-variables)
-- [css part selector](https://caniuse.com/wf-shadow-parts)
-
-So, basically, all up-to-date browsers since 2025.
-
-
 ## Why use Scrollable Component?
 
 ### Perks
@@ -445,6 +430,21 @@ It's recommended to only use it sparingly, on small parts of your website (like 
 - It sacrifices some native features (e.g. Google Chrome's search result highlights in the scrollbar)
 - Some native features might not work quite as expected (e.g. scroll snapping isn't smooth when using the custom scrollbars instead of the viewport)
 - The custom scrollbars are simple divs that are absolutely positioned above the native viewport, which means scrolling using the custom scrollbars instead of the viewport is, in fact, handled with some JavaScript and not natively
+
+
+## Browser compatibility
+
+Every modern browsers that supports the following features:
+- [shadow dom](https://caniuse.com/shadowdomv1)
+- [custom elements](https://caniuse.com/wf-autonomous-custom-elements)
+- [javascript resize observer](https://caniuse.com/resizeobserver)
+- [javascript private class fields](https://caniuse.com/mdn-javascript_classes_private_class_fields)
+- [css sticky position](https://caniuse.com/css-sticky)
+- [css scrollbar width](https://caniuse.com/wf-scrollbar-width)
+- [css custom properties](https://caniuse.com/css-variables)
+- [css part selector](https://caniuse.com/wf-shadow-parts)
+
+So, basically, all up-to-date browsers since 2025.
 
 
 ## How it works
