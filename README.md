@@ -89,7 +89,7 @@ The simplest approach is to import the file directly:
 </script>
 ```
 
-However, if you plan to re-use or share the component in other modules, I recommend you to use an [Import Map](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap/), so that you can directly import the package using its name, just as you would with a bundler:
+However, if you plan to re-use or share the component in other modules, I recommend using an [Import Map](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap/), so that you can directly import the package using its name, just as you would with a bundler:
 
 ```html
 <script type="importmap">
@@ -134,12 +134,12 @@ The `ScrollableComponentElement` will automatically add custom scrollbars if the
 Also, by default, the viewport's content will overflow in both directions, so if you have some content you don't want to overflow, you can override this just like you would with plain CSS:
 
 ```css
-/* No horizontal scrolling */
+/* Disable horizontal scrolling */
 .my-content {
   overflow-x: hidden;
 }
 
-/* No vertical scrolling  */
+/* Disable vertical scrolling  */
 .my-content {
   overflow-y: hidden;
 }
@@ -264,7 +264,7 @@ If you don't like the default `<scrollable-component>` tag, you can override it 
 
 ```javascript
 import { ScrollableComponentElement } from 'scrollable-component';
-window.customElements.define('my-custom-tag, ScrollableComponentElement);
+window.customElements.define('my-custom-tag', ScrollableComponentElement);
 ```
 
 And then use it like this:
@@ -417,7 +417,7 @@ Simple, performant, modern, and customizable - Scrollable Component outperforms 
 
 - It's built for raw performance using modern browser features, which also allow for better customization & cleaner code
 - It does not override the viewport's native behaviors (Mouse wheel scrolling, swipe scrolling, page down/up keys, arrow keys, middle mouse button's auto-scrolling, scroll snapping, JavaScript API...)
-- It uses the [Web Component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) specs, making it act like a black box from the outside (encapsulating HTML, CSS & JS) and leaving the DOM untouched, without extraneous `<div>` elements
+- It uses the [Web Component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) standards, making it act like a black box from the outside (encapsulating HTML, CSS & JS) and leaving the DOM untouched, without extraneous `<div>` elements
 - It's simple to use (you just need to add the `<scrollable-component>` tag around the content you want the custom scrollbars on)
 - It's easy to customize and highly customizable
 
@@ -431,12 +431,12 @@ It's recommended to only use it sparingly, on small parts of your website (like 
 - It doesn't support right-to-left and vertical writing mode
 - It sacrifices some native features (e.g. Google Chrome's search result highlights in the scrollbar)
 - Some native features might not work quite as expected (e.g. scroll snapping isn't smooth when using the custom scrollbars instead of the viewport)
-- The custom scrollbars are simple divs that are absolutely positioned above the native viewport, which means scrolling using the custom scrollbars instead of the viewport is, in fact, handled with some JavaScript and not natively
+- The custom scrollbars are simple divs that are absolutely positioned above the native viewport, which means scrolling using the custom scrollbars instead of the viewport is, in fact, handled with some javascript and not natively
 
 
 ## Browser compatibility
 
-Every modern browsers that supports the following features:
+Every modern browsers that support the following features:
 - [shadow dom](https://caniuse.com/shadowdomv1)
 - [custom elements](https://caniuse.com/wf-autonomous-custom-elements)
 - [javascript resize observer](https://caniuse.com/resizeobserver)
