@@ -57,16 +57,18 @@ npm install scrollable-component
 
 ## Usage
 
-This NPM package is ESM-only, so the easiest way to use it is with a bundler (e.g. webpack, esbuild, ...), which means you don't have to worry about how to make it available and import it.
+This package is ESM-only. The recommended way to use it is with a bundler (e.g. webpack, esbuild, ...), which handles module resolution for you.
 
 ### With a bundler
+
+Define the component:
 
 ```javascript
 import { defineScrollableComponent } from 'scrollable-component';
 defineScrollableComponent();
 ```
 
-Then, the component can be used in your HTML with:
+Then use it in your HTML:
 
 ```html
 <scrollable-component>
@@ -76,9 +78,9 @@ Then, the component can be used in your HTML with:
 
 ### Without a bundler
 
-If you are not using a bundler, you'll have to expose the `/node_modules/scrollable-component/index.js` file so it is accessible from the web, and import it in your HTML using a `module` script.
+If you are not using a bundler, you'll need to expose the `/node_modules/scrollable-component/index.js` file so it is accessible from the web, then import it in your HTML using a `module` script.
 
-The easiest way to import the component is using the exposed full path:
+The simplest approach is to import the file directly:
 
 ```html
 <script type="module">
@@ -87,7 +89,7 @@ The easiest way to import the component is using the exposed full path:
 </script>
 ```
 
-However, if you plan to re-use or share the component in other modules, I recommend you to use an [Import Map](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap/), so that you can directly import the package using its name, just like you would with a bundler:
+However, if you plan to re-use or share the component in other modules, I recommend you to use an [Import Map](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap/), so that you can directly import the package using its name, just as you would with a bundler:
 
 ```html
 <script type="importmap">
@@ -104,7 +106,7 @@ However, if you plan to re-use or share the component in other modules, I recomm
 </script>
 ```
 
-Then, the component can be used in your HTML with:
+Then use the component in your HTML:
 
 ```html
 <scrollable-component>
