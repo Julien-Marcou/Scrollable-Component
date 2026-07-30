@@ -371,10 +371,8 @@ export class ScrollableComponentElement extends HTMLElement {
     // Host properties
     for (let orientation of orientations) {
       const viewportCache = this.#viewportCache[orientation.key];
-      if (viewportCache.isOverflowing) {
-        this.#host.toggleAttribute(`${orientation.position}-overflow`, this.#edgeDetection && viewportCache.scrollPosition > 1);
-        this.#host.toggleAttribute(`${orientation.oppositePosition}-overflow`, this.#edgeDetection && (viewportCache.maxScrollPosition - viewportCache.scrollPosition) > 1);
-      }
+      this.#host.toggleAttribute(`${orientation.position}-overflow`, viewportCache.isOverflowing && this.#edgeDetection && viewportCache.scrollPosition > 1);
+      this.#host.toggleAttribute(`${orientation.oppositePosition}-overflow`, viewportCache.isOverflowing && this.#edgeDetection && viewportCache.maxScrollPosition - viewportCache.scrollPosition > 1);
     }
 
     // Scrollbar properties
