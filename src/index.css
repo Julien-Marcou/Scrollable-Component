@@ -37,16 +37,16 @@
 
 /* Content */
 .content-wrapper {
+  display: flex;
+  flex-direction: column;
   min-width: min-content;
-  min-height: min-content;
+  min-height: 100%;
 }
 :host([overflow-x-hidden]) .content-wrapper {
   min-width: auto;
 }
-:host([overflow-y-hidden]) .content-wrapper {
-  min-height: auto;
-}
 .content {
+  flex-grow: 1;
   padding: var(--content-padding);
 }
 
